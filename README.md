@@ -28,6 +28,12 @@ cd ADOMCPLocalServer
 
 **Windows users:** Just double-click `install.bat`
 
+**Alternative (if .bat doesn't work):** Open Command Prompt in this folder and run:
+```
+npm install
+npm run build
+```
+
 **Mac/Linux users:** Run `./install.sh` or:
 ```bash
 npm install
@@ -56,10 +62,44 @@ npm run build
 
 **Windows users:** Just double-click `setup.bat` and enter your info
 
+**Alternative (manual setup for Windows):**
+1. Open Notepad
+2. Type exactly this (replace with your values):
+   ```
+   AZURE_DEVOPS_ORG=your-organization-name
+   AZURE_DEVOPS_PAT=your-token-here
+   ```
+3. Click File → Save As
+4. Navigate to the ADOMCPLocalServer folder
+5. Change "Save as type" to **"All Files (*.*)"**
+6. Type `.env` as the filename (with the dot!)
+7. Click Save
+
 **Mac/Linux users:** Create a file called `.env` in the ADOMCPLocalServer folder:
+```bash
+echo "AZURE_DEVOPS_ORG=your-organization-name" > .env
+echo "AZURE_DEVOPS_PAT=your-token-here" >> .env
 ```
-AZURE_DEVOPS_ORG=your-organization-name
-AZURE_DEVOPS_PAT=your-token-here
+
+### 📝 How the .env file works:
+- The server reads these values when it starts using `dotenv` package
+- If you don't have a .env file, the server will show: "Azure DevOps PAT not found"
+- The .env file is in `.gitignore` so it won't accidentally get committed
+- Alternative: You can also set Windows environment variables instead of using .env
+
+**Alternative: Using System Environment Variables (no .env needed):**
+```powershell
+# Windows PowerShell (permanent):
+[System.Environment]::SetEnvironmentVariable("AZURE_DEVOPS_ORG", "your-org", "User")
+[System.Environment]::SetEnvironmentVariable("AZURE_DEVOPS_PAT", "your-token", "User")
+
+# Windows Command Prompt (temporary):
+set AZURE_DEVOPS_ORG=your-org
+set AZURE_DEVOPS_PAT=your-token
+
+# Mac/Linux (add to ~/.bashrc or ~/.zshrc):
+export AZURE_DEVOPS_ORG="your-org"
+export AZURE_DEVOPS_PAT="your-token"
 ```
 
 ### Step 5: Tell Cursor where it is
@@ -108,6 +148,8 @@ If you see your projects, it's working!
 
 ## 🆘 Troubleshooting
 
+**Windows users:** Run `check-env.bat` to diagnose issues quickly!
+
 ### "Command failed" or doesn't work
 1. Did you run `npm run build`?
 2. Is the path in settings.json correct?
@@ -121,7 +163,24 @@ If you see your projects, it's working!
 ### Still not working?
 Check these files exist:
 - `ADOMCPLocalServer/dist/index.js` 
-- `ADOMCPLocalServer/.env`
+- `ADOMCPLocalServer/.env` (or environment variables are set)
+
+### "I don't have a .env file but it works"
+You might have:
+1. Set environment variables in your system already
+2. Your organization allows the MCP to pass credentials differently
+3. Used PowerShell/Command Prompt to set variables temporarily
+
+To check what's set:
+```bash
+# Windows:
+echo %AZURE_DEVOPS_ORG%
+echo %AZURE_DEVOPS_PAT%
+
+# Mac/Linux:
+echo $AZURE_DEVOPS_ORG
+echo $AZURE_DEVOPS_PAT
+```
 
 ## 💬 What you can ask Cursor to do
 
