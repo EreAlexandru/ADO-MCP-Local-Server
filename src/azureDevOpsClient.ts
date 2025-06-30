@@ -15,6 +15,8 @@ export class AzureDevOpsClient {
   private api: AxiosInstance;
   private organization: string;
   private pat: string;
+  private requestCount: number = 0;
+  private requestResetTime: number = Date.now();
 
   constructor() {
     this.organization = process.argv[2] || process.env.AZURE_DEVOPS_ORG || '';
@@ -26,6 +28,11 @@ export class AzureDevOpsClient {
 
     if (!this.pat) {
       throw new Error('Azure DevOps PAT not found. Set AZURE_DEVOPS_PAT or AZURE_DEVOPS_EXT_PAT environment variable');
+    }
+
+    // Security: Validate organization name format
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/.test(this.organization)) {
+      throw new Error('Invalid organization name format. Must contain only alphanumeric characters and hyphens.');
     }
 
     // Create axios instance with authentication
@@ -40,6 +47,7 @@ export class AzureDevOpsClient {
 
   async listProjects() {
     try {
+      this.checkRateLimit();
       const response = await this.api.get('/_apis/projects?api-version=7.0');
       const projects = response.data.value.map((p: any) => ({
         id: p.id,
@@ -66,6 +74,12 @@ export class AzureDevOpsClient {
 
   async listWorkItems(project: string, query?: string) {
     try {
+      // Security: Validate inputs
+      this.validateProjectName(project);
+      if (query) {
+        this.validateStringInput(query, 'WIQL query', 32000); // WIQL max length
+      }
+      
       let workItems;
       
       if (query) {
@@ -86,9 +100,12 @@ export class AzureDevOpsClient {
         }
       } else {
         // Get recent work items
+        // Azure DevOps doesn't support parameterized queries in WIQL
+        // So we need to escape the project name properly to prevent SQL injection
+        const safeProject = project.replace(/'/g, "''");
         const defaultQuery = `SELECT [System.Id], [System.Title], [System.State] 
                              FROM WorkItems 
-                             WHERE [System.TeamProject] = '${project}' 
+                             WHERE [System.TeamProject] = '${safeProject}' 
                              ORDER BY [System.ChangedDate] DESC`;
         const response = await this.api.post(
           `/${project}/_apis/wit/wiql?api-version=7.0&$top=20`,
@@ -137,6 +154,17 @@ export class AzureDevOpsClient {
     assignedTo?: string
   ) {
     try {
+      // Security: Validate all inputs
+      this.validateProjectName(project);
+      this.validateStringInput(type, 'Work item type', 255);
+      this.validateStringInput(title, 'Title', 255);
+      if (description) {
+        this.validateStringInput(description, 'Description', 32000);
+      }
+      if (assignedTo) {
+        this.validateStringInput(assignedTo, 'Assigned to', 255);
+      }
+      
       const operations = [
         {
           op: 'add',
@@ -187,6 +215,9 @@ export class AzureDevOpsClient {
 
   async getWorkItem(id: number) {
     try {
+      // Security: Validate input
+      this.validateWorkItemId(id);
+      
       const response = await this.api.get(
         `/_apis/wit/workitems/${id}?api-version=7.0&$expand=all`
       );
@@ -398,6 +429,58 @@ ${details.description}`,
     return error.message || 'Unknown error';
   }
 
+  // Security: Input validation helpers
+  private validateProjectName(project: string): void {
+    if (!project || typeof project !== 'string') {
+      throw new Error('Project name is required');
+    }
+    if (project.length > 255) {
+      throw new Error('Project name too long (max 255 characters)');
+    }
+    // Allow spaces in project names but prevent path traversal
+    if (project.includes('..') || project.includes('\\\\') || project.includes('//')) {
+      throw new Error('Invalid project name');
+    }
+  }
+
+  private validateWorkItemId(id: number): void {
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new Error('Invalid work item ID');
+    }
+    if (id > 2147483647) { // Max int32
+      throw new Error('Work item ID too large');
+    }
+  }
+
+  private validateStringInput(input: string, fieldName: string, maxLength: number = 1000): void {
+    if (typeof input !== 'string') {
+      throw new Error(`${fieldName} must be a string`);
+    }
+    if (input.length > maxLength) {
+      throw new Error(`${fieldName} too long (max ${maxLength} characters)`);
+    }
+  }
+
+  private escapeWiqlString(value: string): string {
+    // Escape single quotes for WIQL
+    return value.replace(/'/g, "''");
+  }
+
+  private checkRateLimit(): void {
+    // Reset counter every minute
+    const now = Date.now();
+    if (now - this.requestResetTime > 60000) {
+      this.requestCount = 0;
+      this.requestResetTime = now;
+    }
+    
+    // Allow max 100 requests per minute
+    this.requestCount++;
+    if (this.requestCount > 100) {
+      throw new Error('Rate limit exceeded. Please wait before making more requests.');
+    }
+  }
+
   // === NEW METHODS ===
 
   async getProject(projectId: string) {
@@ -549,6 +632,22 @@ Visibility: ${project.visibility}`,
     description?: string
   ) {
     try {
+      // Security: Validate all inputs
+      this.validateProjectName(project);
+      this.validateStringInput(repository, 'Repository name', 255);
+      this.validateStringInput(sourceBranch, 'Source branch', 255);
+      this.validateStringInput(targetBranch, 'Target branch', 255);
+      this.validateStringInput(title, 'PR title', 500);
+      if (description) {
+        this.validateStringInput(description, 'PR description', 4000);
+      }
+      
+      // Additional validation for branch names to prevent injection
+      const branchRegex = /^[a-zA-Z0-9._\-\/]+$/;
+      if (!branchRegex.test(sourceBranch) || !branchRegex.test(targetBranch)) {
+        throw new Error('Invalid branch name format');
+      }
+      
       const prData = {
         sourceRefName: `refs/heads/${sourceBranch}`,
         targetRefName: `refs/heads/${targetBranch}`,
@@ -639,6 +738,19 @@ URL: ${pr.url}`,
 
   async runBuild(project: string, definitionId: number, sourceBranch?: string) {
     try {
+      // Security: Validate inputs
+      this.validateProjectName(project);
+      if (!Number.isInteger(definitionId) || definitionId <= 0) {
+        throw new Error('Invalid build definition ID');
+      }
+      if (sourceBranch) {
+        this.validateStringInput(sourceBranch, 'Source branch', 255);
+        // Validate branch name format
+        if (!/^[a-zA-Z0-9._\-\/]+$/.test(sourceBranch)) {
+          throw new Error('Invalid branch name format');
+        }
+      }
+      
       const buildData: any = {
         definition: { id: definitionId },
       };
