@@ -366,6 +366,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return await handlers.handleCreateArea(adoClient, project, name, path);
       }
 
+      case 'get_pull_request': {
+        const { project, repository, pullRequestId } = args as {
+          project: string;
+          repository: string;
+          pullRequestId: number;
+        };
+        return await handlers.handleGetPullRequest(adoClient, project, repository, pullRequestId);
+      }
+
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -396,4 +405,4 @@ async function main() {
 main().catch((error) => {
   console.error('Server startup error:', error);
   process.exit(1);
-}); 
+});

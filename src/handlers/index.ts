@@ -27,6 +27,7 @@ export {
   handleCreatePullRequest,
   handleUpdatePullRequestStatus,
   handleListBranches,
+  handleGetPullRequest,
 } from './repositoryHandlers.js';
 
 // Build handlers

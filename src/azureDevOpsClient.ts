@@ -1562,4 +1562,43 @@ ${page.content}`,
       throw new Error(`Failed to create area: ${this.getErrorMessage(error)}`);
     }
   }
+
+  /**
+   * Get detailed information about a specific pull request
+   * @param project - Project name
+   * @param repository - Repository name
+   * @param pullRequestId - Pull request ID
+   * @returns MCP-formatted response with PR details
+   */
+  async getPullRequest(project: string, repository: string, pullRequestId: number) {
+    try {
+      this.checkRateLimit();
+      this.validateProjectName(project);
+      this.validateStringInput(repository, 'Repository name', 255);
+      if (!Number.isInteger(pullRequestId) || pullRequestId <= 0) {
+        throw new Error('Invalid pull request ID');
+      }
+      const response = await this.api.get(
+        `/${project}/_apis/git/repositories/${repository}/pullrequests/${pullRequestId}?api-version=7.0`
+      );
+      const pr = response.data;
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Pull Request #${pr.pullRequestId}: ${pr.title}\n` +
+              `Status: ${pr.status}\n` +
+              `Created By: ${pr.createdBy?.displayName || 'Unknown'}\n` +
+              `Source Branch: ${pr.sourceRefName}\n` +
+              `Target Branch: ${pr.targetRefName}\n` +
+              `Created: ${pr.creationDate}\n` +
+              `Description: ${pr.description || 'No description'}\n` +
+              `Reviewers: ${(pr.reviewers || []).map((r: any) => r.displayName).join(', ') || 'None'}`
+          },
+        ],
+      };
+    } catch (error) {
+      throw new Error(`Failed to get pull request details: ${this.getErrorMessage(error)}`);
+    }
+  }
 } 

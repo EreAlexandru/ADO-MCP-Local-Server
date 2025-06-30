@@ -77,4 +77,21 @@ export async function handleListBranches(
   repository: string
 ) {
   return await adoClient.listBranches(project, repository);
+}
+
+/**
+ * Get detailed information about a specific pull request
+ * @param adoClient - The Azure DevOps client instance
+ * @param project - Project name
+ * @param repository - Repository name
+ * @param pullRequestId - Pull request ID
+ * @returns MCP-formatted response with PR details
+ */
+export async function handleGetPullRequest(
+  adoClient: AzureDevOpsClient,
+  project: string,
+  repository: string,
+  pullRequestId: number
+) {
+  return await adoClient.getPullRequest(project, repository, pullRequestId);
 } 

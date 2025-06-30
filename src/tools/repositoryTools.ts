@@ -106,4 +106,26 @@ export const repositoryTools: Tool[] = [
       required: ['project', 'repository'],
     },
   },
+  {
+    name: 'get_pull_request',
+    description: 'Get detailed information about a specific pull request',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        project: {
+          type: 'string',
+          description: 'Project name',
+        },
+        repository: {
+          type: 'string',
+          description: 'Repository name',
+        },
+        pullRequestId: {
+          type: 'number',
+          description: 'Pull request ID',
+        },
+      },
+      required: ['project', 'repository', 'pullRequestId'],
+    },
+  },
 ]; 
