@@ -28,6 +28,8 @@ cd ADOMCPLocalServer
 
 **Windows users:** Just double-click `install.bat`
 
+**If the window closes immediately:** Try `install-debug.bat` to see what's wrong
+
 **Alternative (if .bat doesn't work):** Open Command Prompt in this folder and run:
 ```
 npm install

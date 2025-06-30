@@ -1,0 +1,2 @@
+@echo off
+start cmd /k "echo Azure DevOps MCP Installer && echo. && echo Run these commands: && echo. && echo   npm install && echo   npm run build && echo. && echo Then run setup.bat to configure credentials" 
