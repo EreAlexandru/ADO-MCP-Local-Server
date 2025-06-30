@@ -44,6 +44,7 @@ npm run build
 
 ### Step 3: Get your Azure DevOps token
 1. Go to: https://dev.azure.com/YOUR-ORG-NAME/_usersSettings/tokens
+   - Replace `YOUR-ORG-NAME` with your actual organization (e.g., `https://dev.azure.com/contoso/_usersSettings/tokens`)
 2. Click **"+ New Token"**
 3. Give it a name like "Cursor"
 4. Under **Scopes**, select **"Custom defined"** and check these:
@@ -64,6 +65,12 @@ npm run build
 
 **Windows users:** Just double-click `setup.bat` and enter your info
 
+**📍 Where to find your organization name:**
+- Look at your Azure DevOps URL:
+  - If it's `https://dev.azure.com/YOUR-ORG-NAME/` → your org is `YOUR-ORG-NAME`
+  - If it's `https://YOUR-ORG-NAME.visualstudio.com/` → your org is `YOUR-ORG-NAME`
+- Example: For `https://dev.azure.com/contoso/`, the organization name is `contoso`
+
 **Alternative (manual setup for Windows):**
 1. Open Notepad
 2. Type exactly this (replace with your values):
@@ -79,6 +86,7 @@ npm run build
 
 **Mac/Linux users:** Create a file called `.env` in the ADOMCPLocalServer folder:
 ```bash
+# Replace with your actual organization name (see above for how to find it)
 echo "AZURE_DEVOPS_ORG=your-organization-name" > .env
 echo "AZURE_DEVOPS_PAT=your-token-here" >> .env
 ```
