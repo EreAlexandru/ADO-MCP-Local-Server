@@ -228,6 +228,26 @@ Yes!
 
 MIT - Do whatever you want with it!
 
+## 🔄 Updating the MCP Server (After Changes)
+
+If you make changes to the MCP server (such as adding new tools, features, or bug fixes), you need to:
+
+1. **Rebuild the project:**
+   ```
+   npm run build
+   ```
+   or
+   ```
+   npx tsc
+   ```
+2. **Restart the MCP server in Cursor:**
+   - Go to **File → Preferences → Cursor Settings → Tools & Integration**.
+   - Find your MCP server (e.g., `azure-devops`).
+   - **Disable** the server (toggle off or remove it).
+   - **Re-enable** the server (toggle on or add it back).
+
+This ensures Cursor loads the latest version of your MCP server and all new features are available.
+
 ---
 
 **Not working?** Open an issue and I'll help: https://github.com/EreAlexandru/ADOMCPLocalServer/issues 
