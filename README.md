@@ -142,19 +142,21 @@ Close and reopen Cursor. That's it! 🎉
 
 ## 🧪 Test it works
 
-**Quick test (before opening Cursor):**
-```bash
-node test-connection.js
-```
-This will show your projects if everything is set up correctly.
+**1. Verify in Cursor Settings (Before Chatting)**
+1. Go back to **File → Preferences → Cursor Settings → Tools & Integration**.
+2. Find your server, e.g., `azure-devops`.
+3. **Look for a green dot ✅ beside the name.** This means Cursor connected to the server successfully.
+4. Click on the server name to see a list of all 40+ available tools.
 
-**In Cursor:**
+This is the best first check! If you don't see a green dot, check the [Troubleshooting](#-troubleshooting) steps.
+
+**2. Test in Chat**
 Open a new chat and type:
 ```
 List my Azure DevOps projects
 ```
 
-If you see your projects, it's working!
+If you see your projects, you're all set!
 
 ## 🆘 Troubleshooting
 
