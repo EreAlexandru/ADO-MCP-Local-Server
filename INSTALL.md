@@ -98,11 +98,11 @@ export AZURE_DEVOPS_PAT="your-pat-token"
 
 Once installed, you can use natural language commands like:
 - "List all my Azure DevOps projects"
-- "Show work items in project MHC"
-- "Create a bug in project MHC with title 'Login button not working'"
-- "Show pull requests in MHC repository"
+- "Show work items in project MyProject"
+- "Create a bug in project MyProject with title 'Login button not working'"
+- "Show pull requests in MyProject repository"
 - "Create a test plan for the new feature"
-- "Show wiki pages in project MHC"
+- "Show wiki pages in project MyProject"
 
 ## ✅ Verification
 
@@ -130,6 +130,6 @@ To verify installation:
 - "List pull requests in project [ProjectName] repository [RepoName]"
 
 ## Troubleshooting:
-- Token invalid? Verifică permisiunile PAT
-- Nu apare în Cursor? Verifică calea în mcp.json
-- Erori de autentificare? Verifică numele organizației 
+**"Token invalid?"** - Check PAT permissions
+**"Not showing in Cursor?"** - Check the path in settings
+**"Authentication errors?"** - Verify organization name 

@@ -142,22 +142,22 @@ After configuration and restarting Cursor, you'll have access to **41 Azure DevO
 ### 📌 **Natural Language Command Examples:**
 
 #### Work Items:
-- "List all active bugs in project MHC"
-- "Create a new task in project MHC with title 'Update documentation'"
+- "List all active bugs in project MyProject"
+- "Create a new task in project MyProject with title 'Update documentation'"
 - "Search for work items containing 'login issue'"
 - "Add comment 'Fixed in latest build' to work item 183633"
 - "Link work item 12345 as parent of 12346"
 
 #### Pull Requests & Git:
 - "Create a pull request from feature/new-login to develop in Frontend repository"
-- "List all active pull requests in project MHC"
+- "List all active pull requests in project MyProject"
 - "Complete pull request #456 in repository Backend"
 - "Show all branches in repository API"
 
 #### Builds:
-- "Run build definition 123 in project MHC"
+- "Run build definition 123 in project MyProject"
 - "Check status of build 5678"
-- "List all build definitions in project Platform"
+- "List all build definitions in project TeamProject"
 
 #### Tests:
 - "Create a test plan for Q4 release"
@@ -168,16 +168,16 @@ After configuration and restarting Cursor, you'll have access to **41 Azure DevO
 #### Releases:
 - "Create a release from definition 'Production Deploy'"
 - "Deploy release 123 to staging environment"
-- "List all releases for project MHC"
+- "List all releases for project MyProject"
 
 #### Wiki:
-- "Show wiki page '/Getting-Started' in project MHC"
+- "Show wiki page '/Getting-Started' in project MyProject"
 - "Create wiki page '/API/Authentication' with content..."
-- "Update wiki page '/Deployment-Guide' in project Platform"
+- "Update wiki page '/Deployment-Guide' in project TeamProject"
 
 #### Search:
 - "Search for 'authentication' in all code files"
-- "Find code containing 'login method' in project MHC"
+- "Find code containing 'login method' in project MyProject"
 
 ## 🔒 Security
 
