@@ -65,7 +65,7 @@ AZURE_DEVOPS_PAT=your-token-here
 ### Step 5: Tell Cursor where it is
 
 1. Open Cursor
-2. Press `Ctrl+,` (Windows) or `Cmd+,` (Mac) to open Settings
+2. Go to **File → Preferences → Cursor Settings**
 3. Find **"Tools & Integration"** in the left sidebar
 4. Click **"New MCP Server"** button
 5. Paste this JSON (change the path to match where you cloned it):
