@@ -94,4 +94,138 @@ export async function handleGetPullRequest(
   pullRequestId: number
 ) {
   return await adoClient.getPullRequest(project, repository, pullRequestId);
+}
+
+/**
+ * List all repositories in a project
+ * @param adoClient - The Azure DevOps client instance
+ * @param project - Project name
+ * @returns MCP-formatted response with repository list
+ */
+export async function handleListRepositories(
+  adoClient: AzureDevOpsClient,
+  project: string
+) {
+  return await adoClient.listRepositories(project);
+}
+
+/**
+ * Get a specific repository by name or ID
+ * @param adoClient - The Azure DevOps client instance
+ * @param project - Project name
+ * @param repoIdOrName - Repository name or ID
+ * @returns MCP-formatted response with repository details
+ */
+export async function handleGetRepository(
+  adoClient: AzureDevOpsClient,
+  project: string,
+  repoIdOrName: string
+) {
+  return await adoClient.getRepository(project, repoIdOrName);
+}
+
+/**
+ * Get a specific branch by name
+ * @param adoClient - The Azure DevOps client instance
+ * @param project - Project name
+ * @param repository - Repository name
+ * @param branchName - Branch name
+ * @returns MCP-formatted response with branch details
+ */
+export async function handleGetBranch(
+  adoClient: AzureDevOpsClient,
+  project: string,
+  repository: string,
+  branchName: string
+) {
+  return await adoClient.getBranch(project, repository, branchName);
+}
+
+/**
+ * List all pull requests in a project
+ * @param adoClient - The Azure DevOps client instance
+ * @param project - Project name
+ * @returns MCP-formatted response with pull request list
+ */
+export async function handleListPullRequestsByProject(
+  adoClient: AzureDevOpsClient,
+  project: string
+) {
+  return await adoClient.listPullRequestsByProject(project);
+}
+
+/**
+ * List threads in a pull request
+ * @param adoClient - The Azure DevOps client instance
+ * @param project - Project name
+ * @param repository - Repository name
+ * @param pullRequestId - Pull request ID
+ * @returns MCP-formatted response with thread list
+ */
+export async function handleListPullRequestThreads(
+  adoClient: AzureDevOpsClient,
+  project: string,
+  repository: string,
+  pullRequestId: number
+) {
+  return await adoClient.listPullRequestThreads(project, repository, pullRequestId);
+}
+
+/**
+ * List comments in a pull request thread
+ * @param adoClient - The Azure DevOps client instance
+ * @param project - Project name
+ * @param repository - Repository name
+ * @param pullRequestId - Pull request ID
+ * @param threadId - Thread ID
+ * @returns MCP-formatted response with comment list
+ */
+export async function handleListPullRequestThreadComments(
+  adoClient: AzureDevOpsClient,
+  project: string,
+  repository: string,
+  pullRequestId: number,
+  threadId: number
+) {
+  return await adoClient.listPullRequestThreadComments(project, repository, pullRequestId, threadId);
+}
+
+/**
+ * Reply to a comment in a pull request thread
+ * @param adoClient - The Azure DevOps client instance
+ * @param project - Project name
+ * @param repository - Repository name
+ * @param pullRequestId - Pull request ID
+ * @param threadId - Thread ID
+ * @param content - Comment content
+ * @returns MCP-formatted response with confirmation
+ */
+export async function handleReplyToPullRequestComment(
+  adoClient: AzureDevOpsClient,
+  project: string,
+  repository: string,
+  pullRequestId: number,
+  threadId: number,
+  content: string
+) {
+  return await adoClient.replyToPullRequestComment(project, repository, pullRequestId, threadId, content);
+}
+
+/**
+ * Resolve a comment thread in a pull request
+ * @param adoClient - The Azure DevOps client instance
+ * @param project - Project name
+ * @param repository - Repository name
+ * @param pullRequestId - Pull request ID
+ * @param threadId - Thread ID
+ * @returns MCP-formatted response with confirmation
+ */
+export async function handleResolvePullRequestThread(
+  adoClient: AzureDevOpsClient,
+  project: string,
+  repository: string,
+  pullRequestId: number,
+  threadId: number
+) {
+  return await adoClient.resolvePullRequestThread(project, repository, pullRequestId, threadId);
 } 

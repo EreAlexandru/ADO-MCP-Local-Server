@@ -28,6 +28,14 @@ export {
   handleUpdatePullRequestStatus,
   handleListBranches,
   handleGetPullRequest,
+  handleListRepositories,
+  handleGetRepository,
+  handleGetBranch,
+  handleListPullRequestsByProject,
+  handleListPullRequestThreads,
+  handleListPullRequestThreadComments,
+  handleReplyToPullRequestComment,
+  handleResolvePullRequestThread,
 } from './repositoryHandlers.js';
 
 // Build handlers

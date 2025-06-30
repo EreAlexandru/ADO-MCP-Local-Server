@@ -1601,4 +1601,211 @@ ${page.content}`,
       throw new Error(`Failed to get pull request details: ${this.getErrorMessage(error)}`);
     }
   }
+
+  /**
+   * List all repositories in a project
+   * @param project - Project name
+   * @returns MCP-formatted response with repository list
+   */
+  async listRepositories(project: string) {
+    try {
+      this.checkRateLimit();
+      this.validateProjectName(project);
+      const response = await this.api.get(`/${project}/_apis/git/repositories?api-version=7.0`);
+      const repos = response.data.value || [];
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Found ${repos.length} repositories in project '${project}':\n` +
+              repos.map((r: any) => `- ${r.name}${r.isDisabled ? ' (disabled)' : ''}`).join('\n'),
+          },
+        ],
+      };
+    } catch (error) {
+      throw new Error(`Failed to list repositories: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  /**
+   * Get a specific repository by name or ID
+   * @param project - Project name
+   * @param repoIdOrName - Repository name or ID
+   * @returns MCP-formatted response with repository details
+   */
+  async getRepository(project: string, repoIdOrName: string) {
+    try {
+      this.checkRateLimit();
+      this.validateProjectName(project);
+      this.validateStringInput(repoIdOrName, 'Repository name or ID', 255);
+      const response = await this.api.get(`/${project}/_apis/git/repositories/${repoIdOrName}?api-version=7.0`);
+      const repo = response.data;
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Repository: ${repo.name}\nID: ${repo.id}\nDefault Branch: ${repo.defaultBranch}\nURL: ${repo.webUrl}`,
+          },
+        ],
+      };
+    } catch (error) {
+      throw new Error(`Failed to get repository: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  /**
+   * Get a specific branch by name
+   * @param project - Project name
+   * @param repository - Repository name
+   * @param branchName - Branch name
+   * @returns MCP-formatted response with branch details
+   */
+  async getBranch(project: string, repository: string, branchName: string) {
+    try {
+      this.checkRateLimit();
+      this.validateProjectName(project);
+      this.validateStringInput(repository, 'Repository name', 255);
+      this.validateStringInput(branchName, 'Branch name', 255);
+      // The branch name in the API doesn't include 'refs/heads/'
+      const formattedBranchName = branchName.startsWith('refs/heads/') ? branchName.substring(11) : branchName;
+      const response = await this.api.get(`/${project}/_apis/git/repositories/${repository}/refs?filter=heads/${formattedBranchName}&api-version=7.0`);
+      const branch = response.data.value[0];
+      if (!branch) {
+        return { content: [{ type: 'text', text: `Branch '${branchName}' not found.` }] };
+      }
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Branch: ${branch.name}\nCommit: ${branch.objectId}`,
+          },
+        ],
+      };
+    } catch (error) {
+      throw new Error(`Failed to get branch: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  /**
+   * List all pull requests in a project
+   * @param project - Project name
+   * @returns MCP-formatted response with pull request list
+   */
+  async listPullRequestsByProject(project: string) {
+    try {
+      this.checkRateLimit();
+      this.validateProjectName(project);
+      const response = await this.api.get(`/${project}/_apis/git/pullrequests?api-version=7.0`);
+      const prs = response.data.value || [];
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Found ${prs.length} pull requests in project '${project}':\n` +
+              prs.map((p: any) => `- #${p.pullRequestId}: ${p.title} (in ${p.repository.name})`).join('\n'),
+          },
+        ],
+      };
+    } catch (error) {
+      throw new Error(`Failed to list pull requests by project: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  /**
+   * List threads in a pull request
+   * @param project - Project name
+   * @param repository - Repository name
+   * @param pullRequestId - Pull request ID
+   * @returns MCP-formatted response with thread list
+   */
+  async listPullRequestThreads(project: string, repository: string, pullRequestId: number) {
+    try {
+      this.checkRateLimit();
+      const response = await this.api.get(`/${project}/_apis/git/repositories/${repository}/pullrequests/${pullRequestId}/threads?api-version=7.0`);
+      const threads = response.data.value || [];
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Found ${threads.length} threads in PR #${pullRequestId}:\n` +
+              threads.map((t: any) => `- Thread ${t.id} (Status: ${t.status})`).join('\n'),
+          },
+        ],
+      };
+    } catch (error) {
+      throw new Error(`Failed to list pull request threads: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  /**
+   * List comments in a pull request thread
+   * @param project - Project name
+   * @param repository - Repository name
+   * @param pullRequestId - Pull request ID
+   * @param threadId - Thread ID
+   * @returns MCP-formatted response with comment list
+   */
+  async listPullRequestThreadComments(project: string, repository: string, pullRequestId: number, threadId: number) {
+    try {
+      this.checkRateLimit();
+      const response = await this.api.get(`/${project}/_apis/git/repositories/${repository}/pullrequests/${pullRequestId}/threads/${threadId}/comments?api-version=7.0`);
+      const comments = response.data.value || [];
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Found ${comments.length} comments in thread #${threadId}:\n` +
+              comments.map((c: any) => `- [${c.id}] ${c.author.displayName}: ${c.content}`).join('\n'),
+          },
+        ],
+      };
+    } catch (error) {
+      throw new Error(`Failed to list pull request thread comments: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  /**
+   * Reply to a comment in a pull request thread
+   * @param project - Project name
+   * @param repository - Repository name
+   * @param pullRequestId - Pull request ID
+   * @param threadId - Thread ID
+   * @param content - Comment content
+   * @returns MCP-formatted response with confirmation
+   */
+  async replyToPullRequestComment(project: string, repository: string, pullRequestId: number, threadId: number, content: string) {
+    try {
+      this.checkRateLimit();
+      const payload = { content, commentType: 1 }; // 1 for Text
+      const response = await this.api.post(
+        `/${project}/_apis/git/repositories/${repository}/pullrequests/${pullRequestId}/threads/${threadId}/comments?api-version=7.0`,
+        payload
+      );
+      return { content: [{ type: 'text', text: `Successfully replied to thread #${threadId}.` }] };
+    } catch (error) {
+      throw new Error(`Failed to reply to comment: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  /**
+   * Resolve a comment thread in a pull request
+   * @param project - Project name
+   * @param repository - Repository name
+   * @param pullRequestId - Pull request ID
+   * @param threadId - Thread ID
+   * @returns MCP-formatted response with confirmation
+   */
+  async resolvePullRequestThread(project: string, repository: string, pullRequestId: number, threadId: number) {
+    try {
+      this.checkRateLimit();
+      const payload = { status: 'closed' }; // Or 'fixed', 'wontFix'
+      await this.api.patch(
+        `/${project}/_apis/git/repositories/${repository}/pullrequests/${pullRequestId}/threads/${threadId}?api-version=7.0`,
+        payload
+      );
+      return { content: [{ type: 'text', text: `Successfully resolved thread #${threadId}.` }] };
+    } catch (error) {
+      throw new Error(`Failed to resolve comment thread: ${this.getErrorMessage(error)}`);
+    }
+  }
 } 

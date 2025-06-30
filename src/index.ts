@@ -109,43 +109,57 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       // Repository tools
-      case 'list_pull_requests': {
-        const { project, repository, status } = args as {
-          project: string;
-          repository: string;
-          status?: string;
-        };
+      case 'repo_list_pull_requests_by_repo': {
+        const { project, repository, status } = args as { project: string; repository: string; status?: string; };
         return await handlers.handleListPullRequests(adoClient, project, repository, status);
       }
-
-      case 'create_pull_request': {
-        const { project, repository, sourceBranch, targetBranch, title, description } = args as {
-          project: string;
-          repository: string;
-          sourceBranch: string;
-          targetBranch: string;
-          title: string;
-          description?: string;
-        };
+      case 'repo_list_pull_requests_by_project': {
+        const { project } = args as { project: string };
+        return await handlers.handleListPullRequestsByProject(adoClient, project);
+      }
+      case 'repo_create_pull_request': {
+        const { project, repository, sourceBranch, targetBranch, title, description } = args as { project: string; repository: string; sourceBranch: string; targetBranch: string; title: string; description?: string; };
         return await handlers.handleCreatePullRequest(adoClient, project, repository, sourceBranch, targetBranch, title, description);
       }
-
-      case 'update_pull_request_status': {
-        const { project, repository, pullRequestId, status } = args as {
-          project: string;
-          repository: string;
-          pullRequestId: number;
-          status: string;
-        };
+      case 'repo_update_pull_request_status': {
+        const { project, repository, pullRequestId, status } = args as { project: string; repository: string; pullRequestId: number; status: string; };
         return await handlers.handleUpdatePullRequestStatus(adoClient, project, repository, pullRequestId, status);
       }
-
-      case 'list_branches': {
-        const { project, repository } = args as {
-          project: string;
-          repository: string;
-        };
+      case 'repo_list_branches_by_repo': {
+        const { project, repository } = args as { project: string; repository: string; };
         return await handlers.handleListBranches(adoClient, project, repository);
+      }
+      case 'repo_get_pull_request_by_id': {
+        const { project, repository, pullRequestId } = args as { project: string; repository: string; pullRequestId: number; };
+        return await handlers.handleGetPullRequest(adoClient, project, repository, pullRequestId);
+      }
+      case 'repo_list_repos_by_project': {
+        const { project } = args as { project: string };
+        return await handlers.handleListRepositories(adoClient, project);
+      }
+      case 'repo_get_repo_by_name_or_id': {
+        const { project, repoIdOrName } = args as { project: string; repoIdOrName: string; };
+        return await handlers.handleGetRepository(adoClient, project, repoIdOrName);
+      }
+      case 'repo_get_branch_by_name': {
+        const { project, repository, branchName } = args as { project: string; repository: string; branchName: string; };
+        return await handlers.handleGetBranch(adoClient, project, repository, branchName);
+      }
+      case 'repo_list_pull_request_threads': {
+        const { project, repository, pullRequestId } = args as { project: string; repository: string; pullRequestId: number; };
+        return await handlers.handleListPullRequestThreads(adoClient, project, repository, pullRequestId);
+      }
+      case 'repo_list_pull_request_thread_comments': {
+        const { project, repository, pullRequestId, threadId } = args as { project: string; repository: string; pullRequestId: number; threadId: number; };
+        return await handlers.handleListPullRequestThreadComments(adoClient, project, repository, pullRequestId, threadId);
+      }
+      case 'repo_reply_to_comment': {
+        const { project, repository, pullRequestId, threadId, content } = args as { project: string; repository: string; pullRequestId: number; threadId: number; content: string; };
+        return await handlers.handleReplyToPullRequestComment(adoClient, project, repository, pullRequestId, threadId, content);
+      }
+      case 'repo_resolve_comment': {
+        const { project, repository, pullRequestId, threadId } = args as { project: string; repository: string; pullRequestId: number; threadId: number; };
+        return await handlers.handleResolvePullRequestThread(adoClient, project, repository, pullRequestId, threadId);
       }
 
       // Build tools
@@ -364,15 +378,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           path?: string;
         };
         return await handlers.handleCreateArea(adoClient, project, name, path);
-      }
-
-      case 'get_pull_request': {
-        const { project, repository, pullRequestId } = args as {
-          project: string;
-          repository: string;
-          pullRequestId: number;
-        };
-        return await handlers.handleGetPullRequest(adoClient, project, repository, pullRequestId);
       }
 
       default:
