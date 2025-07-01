@@ -1,54 +1,72 @@
-# Azure DevOps Permissions Guide
+# 🔐 Azure DevOps Permissions Guide
 
-## Why these specific permissions?
+## Why do I need a Personal Access Token (PAT)?
 
-We ask for these permissions to make the MCP server work, but **nothing more**:
+The PAT is like a password that lets the MCP server talk to Azure DevOps on your behalf. It runs **locally on your computer** and needs your permission to access Azure DevOps.
+
+## 📋 Required Permissions (Step by Step)
+
+When creating your PAT, select **"Custom defined"** and check these boxes:
 
 ### ✅ Work Items (Read, Write & Manage)
-- **Why:** To list, create, update work items and add comments
-- **Can't:** Delete work items you don't own or change project settings
+- **What it does:** View, create, update work items and comments
+- **What it CAN'T do:** Delete work items you don't own
 
 ### ✅ Code (Read only)
-- **Why:** To search code and list branches
-- **Can't:** Push code, delete branches, or modify repositories
+- **What it does:** Search code, list branches and repositories
+- **What it CAN'T do:** Push code or delete branches
 
 ### ✅ Build (Read & Execute)
-- **Why:** To run builds and check their status
-- **Can't:** Delete build definitions or modify build settings
+- **What it does:** View builds and trigger new ones
+- **What it CAN'T do:** Delete build definitions or change settings
 
 ### ✅ Release (Read, Write & Execute)
-- **Why:** To create and deploy releases
-- **Can't:** Delete release definitions or modify environments you don't have access to
+- **What it does:** Create and deploy releases
+- **What it CAN'T do:** Delete pipelines or modify secured environments
 
 ### ✅ Test Management (Read & Write)
-- **Why:** To create test plans and run tests
-- **Can't:** Delete test configurations or modify test settings
+- **What it does:** Create test plans and run tests
+- **What it CAN'T do:** Delete test configurations
 
 ### ✅ Wiki (Read & Write)
-- **Why:** To read and create wiki pages
-- **Can't:** Delete wikis or change wiki permissions
+- **What it does:** Read and create wiki pages
+- **What it CAN'T do:** Delete wikis or change permissions
 
-## Important Safety Notes
+## 🛡️ Security Facts
 
-1. **The token respects your Azure DevOps permissions**
-   - If you can't delete something in the Azure DevOps web interface, the token can't either
-   - If you only have read access to a project, the token only has read access
+1. **The token respects YOUR permissions**
+   - If you can't do something in Azure DevOps web, the token can't either
+   - It's just like logging in as yourself
 
-2. **You're always in control**
-   - You can revoke the token anytime from Azure DevOps
-   - The token expires (recommended: 90 days)
+2. **100% Local**
+   - Your token stays on YOUR computer
+   - Never sent to any external servers
+   - Only connects directly to Azure DevOps
+
+3. **You control everything**
+   - Revoke the token anytime from Azure DevOps
+   - Set expiration (90 days recommended)
    - Each action still requires your command in Cursor
 
-3. **What about "Full Access"?**
-   - We don't recommend it - too many permissions
-   - Custom defined is safer and follows principle of least privilege
-   - Full access won't let you do anything you can't already do, but why risk it?
+## ❓ Common Questions
 
-## Quick Permission Check
+**Q: Is it safe to put my token in the .env file?**
+A: Yes! The .env file is:
+- Only on your computer
+- Ignored by Git (won't be uploaded)
+- Standard practice for local development
 
-Run this after setup to see what you can access:
-```
+**Q: What if someone gets my token?**
+A: They can only do what YOU can do in Azure DevOps. Revoke it immediately if compromised.
+
+**Q: Why not use "Full Access"?**
+A: We follow the principle of least privilege - only request what's needed. Safer!
+
+## 🧪 Test Your Permissions
+
+After setup, run:
+```bash
 node test-connection.js
 ```
 
-This will list your projects, confirming the token works and showing what you have access to. 
+This will show exactly what projects you have access to! 

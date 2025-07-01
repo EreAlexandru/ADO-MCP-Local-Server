@@ -11,6 +11,20 @@ interface WorkItemUpdate {
   assignedTo?: string;
 }
 
+interface BatchWorkItemUpdate {
+  id: number;
+  op: 'add' | 'replace' | 'remove';
+  path: string;
+  value?: any;
+}
+
+interface WorkItemBatchRequest {
+  method: string;
+  uri: string;
+  headers: Record<string, string>;
+  body: any[];
+}
+
 export class AzureDevOpsClient {
   private api: AxiosInstance;
   private organization: string;
@@ -44,6 +58,494 @@ export class AzureDevOpsClient {
       },
     });
   }
+
+  // === ADVANCED FUNCTIONALITY MISSING FROM MICROSOFT ===
+
+  // Teams and Backlogs
+  async listBacklogs(project: string, team: string) {
+    try {
+      this.validateProjectName(project);
+      this.validateStringInput(team, 'Team name', 255);
+      
+      const response = await this.api.get(
+        `/${project}/${team}/_apis/work/backlogs?api-version=7.0`
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to list backlogs: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  async listBacklogWorkItems(project: string, team: string, backlogId: string) {
+    try {
+      this.validateProjectName(project);
+      this.validateStringInput(team, 'Team name', 255);
+      this.validateStringInput(backlogId, 'Backlog ID', 255);
+      
+      const response = await this.api.get(
+        `/${project}/${team}/_apis/work/backlogs/${backlogId}/workItems?api-version=7.0`
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to list backlog work items: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  // Advanced Work Item Operations
+  async getWorkItemsBatchByIds(project: string, ids: number[]) {
+    try {
+      this.validateProjectName(project);
+      
+      if (!Array.isArray(ids) || ids.length === 0) {
+        throw new Error('IDs array is required and cannot be empty');
+      }
+      
+      const fields = [
+        'System.Id', 'System.WorkItemType', 'System.Title', 
+        'System.State', 'System.Parent', 'System.Tags'
+      ];
+      
+      const response = await this.api.post(
+        `/${project}/_apis/wit/workitemsbatch?api-version=7.0`,
+        {
+          ids: ids,
+          fields: fields
+        }
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to get work items batch: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  async updateWorkItemsBatch(updates: BatchWorkItemUpdate[]) {
+    try {
+      if (!Array.isArray(updates) || updates.length === 0) {
+        throw new Error('Updates array is required and cannot be empty');
+      }
+      
+      // Group updates by work item ID
+      const updatesByItem = updates.reduce((acc, update) => {
+        if (!acc[update.id]) {
+          acc[update.id] = [];
+        }
+        acc[update.id].push({
+          op: update.op,
+          path: update.path,
+          value: update.value
+        });
+        return acc;
+      }, {} as Record<number, any[]>);
+      
+      // Create batch request
+      const batchRequests: WorkItemBatchRequest[] = Object.entries(updatesByItem).map(([id, itemUpdates]) => ({
+        method: 'PATCH',
+        uri: `/_apis/wit/workitems/${id}?api-version=7.0`,
+        headers: {
+          'Content-Type': 'application/json-patch+json'
+        },
+        body: itemUpdates
+      }));
+      
+      const response = await this.api.patch(
+        `/_apis/wit/$batch?api-version=7.0`,
+        batchRequests,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to update work items batch: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  // Advanced Linking
+  async linkWorkItemsBatch(project: string, updates: Array<{
+    id: number;
+    linkToId: number;
+    type: 'parent' | 'child' | 'duplicate' | 'duplicate of' | 'related' | 'successor' | 'predecessor' | 'tested by' | 'tests';
+    comment?: string;
+  }>) {
+    try {
+      this.validateProjectName(project);
+      
+      if (!Array.isArray(updates) || updates.length === 0) {
+        throw new Error('Updates array is required and cannot be empty');
+      }
+      
+      // Group updates by work item ID
+      const updatesByItem = updates.reduce((acc, update) => {
+        if (!acc[update.id]) {
+          acc[update.id] = [];
+        }
+        acc[update.id].push({
+          op: 'add',
+          path: '/relations/-',
+          value: {
+            rel: this.getLinkTypeFromName(update.type),
+            url: `https://dev.azure.com/${this.organization}/${project}/_apis/wit/workItems/${update.linkToId}`,
+            attributes: {
+              comment: update.comment || ''
+            }
+          }
+        });
+        return acc;
+      }, {} as Record<number, any[]>);
+      
+      // Create batch request
+      const batchRequests: WorkItemBatchRequest[] = Object.entries(updatesByItem).map(([id, itemUpdates]) => ({
+        method: 'PATCH',
+        uri: `/_apis/wit/workitems/${id}?api-version=7.0`,
+        headers: {
+          'Content-Type': 'application/json-patch+json'
+        },
+        body: itemUpdates
+      }));
+      
+      const response = await this.api.patch(
+        `/_apis/wit/$batch?api-version=7.0`,
+        batchRequests,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to link work items batch: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  private getLinkTypeFromName(name: string): string {
+    switch (name.toLowerCase()) {
+      case 'parent':
+        return 'System.LinkTypes.Hierarchy-Reverse';
+      case 'child':
+        return 'System.LinkTypes.Hierarchy-Forward';
+      case 'duplicate':
+        return 'System.LinkTypes.Duplicate-Forward';
+      case 'duplicate of':
+        return 'System.LinkTypes.Duplicate-Reverse';
+      case 'related':
+        return 'System.LinkTypes.Related';
+      case 'successor':
+        return 'System.LinkTypes.Dependency-Forward';
+      case 'predecessor':
+        return 'System.LinkTypes.Dependency-Reverse';
+      case 'tested by':
+        return 'Microsoft.VSTS.Common.TestedBy-Forward';
+      case 'tests':
+        return 'Microsoft.VSTS.Common.TestedBy-Reverse';
+      default:
+        throw new Error(`Unknown link type: ${name}`);
+    }
+  }
+
+  // Advanced Work Item Creation
+  async addChildWorkItem(
+    parentId: number,
+    project: string,
+    workItemType: string,
+    title: string,
+    description: string,
+    areaPath?: string,
+    iterationPath?: string
+  ) {
+    try {
+      this.validateWorkItemId(parentId);
+      this.validateProjectName(project);
+      this.validateStringInput(workItemType, 'Work item type', 255);
+      this.validateStringInput(title, 'Title', 1000);
+      this.validateStringInput(description, 'Description', 32000);
+      
+      const operations = [
+        {
+          op: 'add',
+          path: '/fields/System.Title',
+          value: title
+        },
+        {
+          op: 'add',
+          path: '/fields/System.Description',
+          value: description
+        },
+        {
+          op: 'add',
+          path: '/relations/-',
+          value: {
+            rel: 'System.LinkTypes.Hierarchy-Reverse',
+            url: `https://dev.azure.com/${this.organization}/${project}/_apis/wit/workItems/${parentId}`
+          }
+        }
+      ];
+      
+      if (areaPath && areaPath.trim().length > 0) {
+        operations.push({
+          op: 'add',
+          path: '/fields/System.AreaPath',
+          value: areaPath
+        });
+      }
+      
+      if (iterationPath && iterationPath.trim().length > 0) {
+        operations.push({
+          op: 'add',
+          path: '/fields/System.IterationPath',
+          value: iterationPath
+        });
+      }
+      
+      const response = await this.api.post(
+        `/${project}/_apis/wit/workitems/$${workItemType}?api-version=7.0`,
+        operations,
+        {
+          headers: {
+            'Content-Type': 'application/json-patch+json'
+          }
+        }
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to add child work item: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  // Advanced Work Item to PR Linking
+  async linkWorkItemToPullRequest(
+    project: string,
+    repositoryId: string,
+    pullRequestId: number,
+    workItemId: number
+  ) {
+    try {
+      this.validateProjectName(project);
+      this.validateStringInput(repositoryId, 'Repository ID', 255);
+      this.validateWorkItemId(workItemId);
+      
+      const artifactPathValue = `${project}/${repositoryId}/${pullRequestId}`;
+      const vstfsUrl = `vstfs:///Git/PullRequestId/${encodeURIComponent(artifactPathValue)}`;
+      
+      const patchDocument = [
+        {
+          op: 'add',
+          path: '/relations/-',
+          value: {
+            rel: 'ArtifactLink',
+            url: vstfsUrl,
+            attributes: {
+              name: 'Pull Request'
+            }
+          }
+        }
+      ];
+      
+      const response = await this.api.patch(
+        `/_apis/wit/workitems/${workItemId}?api-version=7.0`,
+        patchDocument,
+        {
+          headers: {
+            'Content-Type': 'application/json-patch+json'
+          }
+        }
+      );
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              workItemId,
+              pullRequestId,
+              success: true,
+              result: response.data
+            }, null, 2)
+          }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to link work item to pull request: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  // Advanced Query Management
+  async getQuery(
+    project: string,
+    queryIdOrPath: string,
+    expand?: 'all' | 'clauses' | 'minimal' | 'none' | 'wiql',
+    depth: number = 0,
+    includeDeleted: boolean = false
+  ) {
+    try {
+      this.validateProjectName(project);
+      this.validateStringInput(queryIdOrPath, 'Query ID or path', 500);
+      
+      const params: any = { 'api-version': '7.0' };
+      if (expand) params.$expand = expand;
+      if (depth > 0) params.depth = depth;
+      if (includeDeleted) params.includeDeleted = includeDeleted;
+      
+      const response = await this.api.get(
+        `/${project}/_apis/wit/queries/${queryIdOrPath}`,
+        { params }
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to get query: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  async getQueryResultsById(
+    queryId: string,
+    project?: string,
+    team?: string,
+    timePrecision?: boolean,
+    top: number = 50
+  ) {
+    try {
+      this.validateStringInput(queryId, 'Query ID', 255);
+      
+      let url = `/_apis/wit/wiql/${queryId}`;
+      if (project && team) {
+        url = `/${project}/${team}/_apis/wit/wiql/${queryId}`;
+      } else if (project) {
+        url = `/${project}/_apis/wit/wiql/${queryId}`;
+      }
+      
+      const params: any = { 'api-version': '7.0' };
+      if (timePrecision !== undefined) params.timePrecision = timePrecision;
+      if (top > 0) params.$top = top;
+      
+      const response = await this.api.get(url, { params });
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to get query results: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  // Close and Link Duplicates
+  async closeAndLinkWorkItemDuplicates(
+    id: number,
+    duplicateIds: number[],
+    project: string,
+    state: string = 'Removed'
+  ) {
+    try {
+      this.validateWorkItemId(id);
+      this.validateProjectName(project);
+      this.validateStringInput(state, 'State', 255);
+      
+      if (!Array.isArray(duplicateIds) || duplicateIds.length === 0) {
+        throw new Error('Duplicate IDs array is required and cannot be empty');
+      }
+      
+      const batchRequests: WorkItemBatchRequest[] = duplicateIds.map(duplicateId => ({
+        method: 'PATCH',
+        uri: `/_apis/wit/workitems/${duplicateId}?api-version=7.0`,
+        headers: {
+          'Content-Type': 'application/json-patch+json'
+        },
+        body: [
+          {
+            op: 'add',
+            path: '/fields/System.State',
+            value: state
+          },
+          {
+            op: 'add',
+            path: '/relations/-',
+            value: {
+              rel: 'System.LinkTypes.Duplicate-Reverse',
+              url: `https://dev.azure.com/${this.organization}/${project}/_apis/wit/workItems/${id}`
+            }
+          }
+        ]
+      }));
+      
+      const response = await this.api.patch(
+        `/_apis/wit/$batch?api-version=7.0`,
+        batchRequests,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to close and link duplicates: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  // Work Item Type Information
+  async getWorkItemType(project: string, workItemType: string) {
+    try {
+      this.validateProjectName(project);
+      this.validateStringInput(workItemType, 'Work item type', 255);
+      
+      const response = await this.api.get(
+        `/${project}/_apis/wit/workitemtypes/${workItemType}?api-version=7.0`
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to get work item type: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  // === EXISTING FUNCTIONALITY (keeping for compatibility) ===
 
   async listProjects() {
     try {
@@ -808,7 +1310,7 @@ Requested By: ${build.requestedBy.displayName}`,
           {
             type: 'text',
             text: `Found ${definitions.length} build definitions:\n${definitions
-              .map((d: any) => `- [${d.id}] ${d.name} (${d.type})${d.path !== '\\' ? ` in ${d.path}` : ''}`)
+              .map((d: any) => `- [${d.id}] ${d.name}${d.path !== '\\' ? ` in ${d.path}` : ''}`)
               .join('\n')}`,
           },
         ],
@@ -1831,7 +2333,159 @@ ${page.content}`,
    * @returns MCP-formatted response with a list of work items
    */
   async getWorkItemsForIteration(project: string, iterationPath: string) {
-    const query = `SELECT [System.Id], [System.Title], [System.State], [System.WorkItemType] FROM WorkItems WHERE [System.TeamProject] = @project AND [System.IterationPath] = '${this.escapeWiqlString(iterationPath)}'`;
-    return this.runQuery(query);
+    try {
+      this.validateProjectName(project);
+      this.validateStringInput(iterationPath, 'Iteration path', 500);
+      
+      const query = `SELECT [System.Id], [System.Title], [System.State], [System.AssignedTo], [System.WorkItemType] 
+                     FROM WorkItems 
+                     WHERE [System.IterationPath] = '${this.escapeWiqlString(iterationPath)}'
+                     AND [System.TeamProject] = '${this.escapeWiqlString(project)}'
+                     ORDER BY [System.Id]`;
+      
+      const response = await this.api.post(
+        `/_apis/wit/wiql?api-version=7.0`,
+        { query }
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to get work items for iteration: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  // Advanced Build Operations
+  async listBuilds(
+    project: string,
+    definitionId?: number,
+    branchName?: string,
+    statusFilter?: string,
+    top: number = 50
+  ) {
+    try {
+      this.validateProjectName(project);
+      
+      const params: any = { 'api-version': '7.0' };
+      if (definitionId) params.definitions = definitionId;
+      if (branchName) params.branchName = branchName;
+      if (statusFilter) params.statusFilter = statusFilter;
+      if (top > 0) params.$top = top;
+      
+      const response = await this.api.get(
+        `/${project}/_apis/build/builds`,
+        { params }
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to list builds: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  async getBuildLogs(project: string, buildId: number) {
+    try {
+      this.validateProjectName(project);
+      this.validateWorkItemId(buildId);
+      
+      const response = await this.api.get(
+        `/${project}/_apis/build/builds/${buildId}/logs?api-version=7.0`
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to get build logs: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  async getBuildLogContent(project: string, buildId: number, logId: number, startLine?: number, endLine?: number) {
+    try {
+      this.validateProjectName(project);
+      this.validateWorkItemId(buildId);
+      this.validateWorkItemId(logId);
+      
+      const params: any = { 'api-version': '7.0' };
+      if (startLine !== undefined) params.startLine = startLine;
+      if (endLine !== undefined) params.endLine = endLine;
+      
+      const response = await this.api.get(
+        `/${project}/_apis/build/builds/${buildId}/logs/${logId}`,
+        { params }
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to get build log content: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  async getBuildChanges(project: string, buildId: number, top: number = 100) {
+    try {
+      this.validateProjectName(project);
+      this.validateWorkItemId(buildId);
+      
+      const params: any = { 
+        'api-version': '7.0',
+        '$top': top
+      };
+      
+      const response = await this.api.get(
+        `/${project}/_apis/build/builds/${buildId}/changes`,
+        { params }
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(response.data, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to get build changes: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  // Repository Branch Operations
+  async getMyBranches(project: string, repository: string) {
+    try {
+      this.validateProjectName(project);
+      this.validateStringInput(repository, 'Repository', 255);
+      
+      // Get current user info first
+      const userResponse = await this.api.get('/_apis/connectionData?api-version=7.0');
+      const currentUserId = userResponse.data.authenticatedUser.id;
+      
+      // Get all branches
+      const branchesResponse = await this.api.get(
+        `/${project}/_apis/git/repositories/${repository}/refs?filter=heads/&api-version=7.0`
+      );
+      
+      // Filter branches created by current user
+      const myBranches = branchesResponse.data.value.filter((branch: any) => 
+        branch.creator && branch.creator.id === currentUserId
+      );
+      
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify({ value: myBranches, count: myBranches.length }, null, 2) }
+        ]
+      };
+    } catch (error) {
+      throw new Error(`Failed to get my branches: ${this.getErrorMessage(error)}`);
+    }
   }
 } 

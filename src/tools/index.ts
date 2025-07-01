@@ -5,6 +5,7 @@
 
 export { projectTools } from './projectTools.js';
 export { workItemTools } from './workItemTools.js';
+export { workTools } from './workTools.js';
 export { repositoryTools } from './repositoryTools.js';
 export { buildTools } from './buildTools.js';
 export { searchTools } from './searchTools.js';
@@ -16,6 +17,7 @@ export { organizationTools } from './organizationTools.js';
 // Aggregate all tools into a single array for easy access
 import { projectTools } from './projectTools.js';
 import { workItemTools } from './workItemTools.js';
+import { workTools } from './workTools.js';
 import { repositoryTools } from './repositoryTools.js';
 import { buildTools } from './buildTools.js';
 import { searchTools } from './searchTools.js';
@@ -27,6 +29,7 @@ import { organizationTools } from './organizationTools.js';
 export const ALL_TOOLS = [
   ...projectTools,
   ...workItemTools,
+  ...workTools,
   ...repositoryTools,
   ...buildTools,
   ...searchTools,

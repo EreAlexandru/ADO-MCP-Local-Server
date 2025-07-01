@@ -1,253 +1,287 @@
 # Azure DevOps MCP Server for Cursor 🚀
 
-**Works with Cursor!** Unlike Microsoft's official server that blocks Cursor users, this one just works.
+**Built specifically for Cursor IDE** - Control Azure DevOps with natural language!
 
-## What is this?
+## ⚡ What is this?
 
-A tool that lets you control Azure DevOps directly from Cursor's AI chat. Just type what you want in plain English!
+A tool that lets you talk to Azure DevOps in plain English, right from Cursor's chat. No commands to memorize!
 
-## 🎯 Examples of what you can say:
+**Examples:**
+- *"Show my work items"*
+- *"Create a bug for the login issue"*
+- *"What PRs need my review?"*
+- *"Run the main build"*
 
-```
-"Show my work items in project MyApp"
-"Create a bug titled 'Login button broken' in project MyApp"
-"List pull requests in the Frontend repository"
-"Search for authentication code"
-"Create a test plan for Q1 release"
-```
+---
 
-## 📦 Super Easy Installation (5 minutes)
+## 🚨 IMPORTANT: Do Everything in Cursor When Possible! 🚨
 
-### Step 1: Get the files
-```bash
-git clone https://github.com/EreAlexandru/ADOMCPLocalServer.git
-cd ADOMCPLocalServer
-```
+This guide assumes you're using **Cursor IDE**. If you don't have it yet, [download Cursor here](https://cursor.sh/).
 
-### Step 2: Install it
+---
 
-**Windows users:** Just double-click `install.bat`
+## 📦 Installation Guide (5 minutes)
 
-**If the window closes immediately:** Try `install-debug.bat` to see what's wrong
+### 🎯 Step 1: Clone the Project **IN CURSOR**
 
-**Alternative (if .bat doesn't work):** Open Command Prompt in this folder and run:
-```
-npm install
-npm run build
-```
+1. Open **Cursor IDE**
+2. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
+3. Type "Git: Clone" and select it
+4. Paste: `https://github.com/EreAlexandru/ADOMCPLocalServer.git`
+5. Choose where to save it (remember this location!)
+6. Click "Open" when Cursor asks
 
-**Mac/Linux users:** Run `./install.sh` or:
-```bash
-npm install
-npm run build
-```
+**You're now in the project folder in Cursor!** ✅
 
-### Step 3: Get your Azure DevOps token
-1. Go to: https://dev.azure.com/YOUR-ORG-NAME/_usersSettings/tokens
-   - Replace `YOUR-ORG-NAME` with your actual organization (e.g., `https://dev.azure.com/contoso/_usersSettings/tokens`)
+### 🔨 Step 2: Install Dependencies **IN CURSOR**
+
+1. In Cursor, press `` Ctrl+` `` to open the terminal
+2. You should see something like `C:\...\ADOMCPLocalServer>`
+3. Type these commands:
+   ```bash
+   npm install
+   npm run build
+   ```
+4. Wait for it to finish (about 30 seconds)
+
+**Alternative for Windows:** You can also double-click `install.bat` in the file explorer
+
+### 🔑 Step 3: Get Your Azure DevOps Token
+
+1. Open your browser and go to:
+   ```
+   https://dev.azure.com/YOUR-ORG-NAME/_usersSettings/tokens
+   ```
+   **Replace `YOUR-ORG-NAME` with your organization!**
+   
+   📍 **How to find your organization name:**
+   - Look at your Azure DevOps URL
+   - If it's `https://dev.azure.com/contoso/MyProject` → org is `contoso`
+   - If it's `https://contoso.visualstudio.com/` → org is `contoso`
+
 2. Click **"+ New Token"**
-3. Give it a name like "Cursor"
-4. Under **Scopes**, select **"Custom defined"** and check these:
+3. Name it: "Cursor MCP"
+4. Expiration: 90 days (recommended)
+5. Scopes: Click **"Custom defined"** then check:
    - ✅ Work Items (Read, Write & Manage)
    - ✅ Code (Read)
    - ✅ Build (Read & Execute)
    - ✅ Release (Read, Write & Execute)
    - ✅ Test Management (Read & Write)
    - ✅ Wiki (Read & Write)
-   
-   **Note:** Don't worry - the token can only do what YOU have permission to do in Azure DevOps
-   
-   📖 [Why these permissions?](PERMISSIONS.md) (optional reading) 
-5. Click **"Create"**
-6. **COPY THE TOKEN NOW!** (you won't see it again)
+6. Click **"Create"**
+7. **COPY THE TOKEN NOW!** You won't see it again!
 
-### Step 4: Set up your credentials
+### 🔐 Step 4: Create .env File **IN THE RIGHT PLACE!**
 
-**Windows users:** Just double-click `setup.bat` and enter your info
+#### ⚠️ CRITICAL: The .env file goes in the ROOT folder, NOT in src/ or dist/! ⚠️
 
-**📍 Where to find your organization name:**
-- Look at your Azure DevOps URL:
-  - If it's `https://dev.azure.com/YOUR-ORG-NAME/` → your org is `YOUR-ORG-NAME`
-  - If it's `https://YOUR-ORG-NAME.visualstudio.com/` → your org is `YOUR-ORG-NAME`
-- Example: For `https://dev.azure.com/contoso/`, the organization name is `contoso`
+**Option A: Using Cursor (Recommended)** 👈
+1. In Cursor, right-click on the **root folder** (ADOMCPLocalServer)
+2. Select "New File"
+3. Name it exactly: `.env` (yes, starting with a dot!)
+4. Paste this (replace with your values):
+   ```
+   AZURE_DEVOPS_ORG=your-organization-name
+   AZURE_DEVOPS_PAT=your-token-from-step-3
+   ```
+5. Save with `Ctrl+S`
 
-**Alternative (manual setup for Windows):**
+**Option B: Using setup.bat (Windows only)**
+1. Double-click `setup.bat` in the root folder
+2. Enter your organization name when asked
+3. Paste your token when asked
+4. It creates the .env file for you!
+
+**Option C: Manual (if above doesn't work)**
 1. Open Notepad
-2. Type exactly this (replace with your values):
+2. Paste:
    ```
    AZURE_DEVOPS_ORG=your-organization-name
    AZURE_DEVOPS_PAT=your-token-here
    ```
-3. Click File → Save As
-4. Navigate to the ADOMCPLocalServer folder
-5. Change "Save as type" to **"All Files (*.*)"**
-6. Type `.env` as the filename (with the dot!)
+3. File → Save As
+4. Navigate to the ADOMCPLocalServer folder (NOT src or dist!)
+5. File name: `.env` (with the dot!)
+6. Save as type: **All Files (*.*)**
 7. Click Save
 
-**Mac/Linux users:** Create a file called `.env` in the ADOMCPLocalServer folder:
-```bash
-# Replace with your actual organization name (see above for how to find it)
-echo "AZURE_DEVOPS_ORG=your-organization-name" > .env
-echo "AZURE_DEVOPS_PAT=your-token-here" >> .env
+#### 📁 Correct File Structure:
+```
+ADOMCPLocalServer/
+├── .env              ← YOUR .ENV FILE GOES HERE!
+├── src/              ← NOT HERE!
+├── dist/             ← NOT HERE!
+├── package.json
+├── install.bat
+└── README.md
 ```
 
-### 📝 How the .env file works:
-- The server reads these values when it starts using `dotenv` package
-- If you don't have a .env file, the server will show: "Azure DevOps PAT not found"
-- The .env file is in `.gitignore` so it won't accidentally get committed
-- Alternative: You can also set Windows environment variables instead of using .env
+### 🔌 Step 5: Connect to Cursor
 
-**Alternative: Using System Environment Variables (no .env needed):**
-```powershell
-# Windows PowerShell (permanent):
-[System.Environment]::SetEnvironmentVariable("AZURE_DEVOPS_ORG", "your-org", "User")
-[System.Environment]::SetEnvironmentVariable("AZURE_DEVOPS_PAT", "your-token", "User")
-
-# Windows Command Prompt (temporary):
-set AZURE_DEVOPS_ORG=your-org
-set AZURE_DEVOPS_PAT=your-token
-
-# Mac/Linux (add to ~/.bashrc or ~/.zshrc):
-export AZURE_DEVOPS_ORG="your-org"
-export AZURE_DEVOPS_PAT="your-token"
-```
-
-### Step 5: Tell Cursor where it is
-
-1. Open Cursor
-2. Go to **File → Preferences → Cursor Settings**
-3. Find **"Tools & Integration"** in the left sidebar
-4. Click **"New MCP Server"** button
-5. Paste this JSON (change the path to match where you cloned it):
+1. In Cursor, go to **File → Preferences → Cursor Settings**
+2. In the left sidebar, find **"Tools & Integration"**
+3. Click **"New MCP Server"**
+4. **DELETE EVERYTHING** in the box and paste this:
 
 ```json
 {
   "mcpServers": {
     "azure-devops": {
       "command": "node",
-      "args": ["C:/ADOMCPLocalServer/dist/index.js"]
+      "args": ["C:/PATH/TO/YOUR/ADOMCPLocalServer/dist/index.js"]
     }
   }
 }
 ```
 
-**⚠️ PATH EXAMPLES:**
-- **Windows:** `"C:/ADOMCPLocalServer/dist/index.js"` (use forward slashes!)
-- **Mac:** `"/Users/yourname/ADOMCPLocalServer/dist/index.js"`
-- **Wrong:** `"C:\ADOMCPLocalServer\dist\index.js"` ❌ (backslashes don't work)
+5. **IMPORTANT:** Replace `C:/PATH/TO/YOUR/` with your actual path!
+   
+   **How to find your path:**
+   - In Cursor, look at the top of the window
+   - Or right-click on any file → "Copy Path"
+   - Use FORWARD SLASHES (/) not backslashes (\)
+   
+   **Examples:**
+   - ✅ Windows: `"C:/Users/John/Projects/ADOMCPLocalServer/dist/index.js"`
+   - ✅ Mac: `"/Users/john/Projects/ADOMCPLocalServer/dist/index.js"`
+   - ❌ WRONG: `"C:\Users\John\..."` (backslashes don't work!)
 
-### Step 6: Restart Cursor
+6. Click outside the box to save
 
-Close and reopen Cursor. That's it! 🎉
+### 🔄 Step 6: Restart Cursor
 
-## 🧪 Test it works
+**THIS IS REQUIRED!** Close Cursor completely and open it again.
 
-**1. Verify in Cursor Settings (Before Chatting)**
-1. Go back to **File → Preferences → Cursor Settings → Tools & Integration**.
-2. Find your server, e.g., `azure-devops`.
-3. **Look for a green dot ✅ beside the name.** This means Cursor connected to the server successfully.
-4. Click on the server name to see a list of all 40+ available tools.
+### ✅ Step 7: Verify It Works
 
-This is the best first check! If you don't see a green dot, check the [Troubleshooting](#-troubleshooting) steps.
+1. After restarting, go to **File → Preferences → Cursor Settings → Tools & Integration**
+2. Find "azure-devops" in the list
+3. **You should see a green dot ✅** = Connected!
+4. Click on it to see all 60+ available tools
 
-**2. Test in Chat**
-Open a new chat and type:
-```
-List my Azure DevOps projects
-```
+**No green dot?** See [Troubleshooting](#-troubleshooting)
 
-If you see your projects, you're all set!
+### 🎉 Step 8: Test It!
 
-## 🆘 Troubleshooting
-
-**Windows users:** Run `check-env.bat` to diagnose issues quickly!
-
-### "Command failed" or doesn't work
-1. Did you run `npm run build`?
-2. Is the path in settings.json correct?
-3. Did you restart Cursor?
-
-### "Authentication failed"
-1. Is your organization name correct?
-2. Is your PAT token correct?
-3. Did the token expire?
-
-### Still not working?
-Check these files exist:
-- `ADOMCPLocalServer/dist/index.js` 
-- `ADOMCPLocalServer/.env` (or environment variables are set)
-
-### "I don't have a .env file but it works"
-You might have:
-1. Set environment variables in your system already
-2. Your organization allows the MCP to pass credentials differently
-3. Used PowerShell/Command Prompt to set variables temporarily
-
-To check what's set:
-```bash
-# Windows:
-echo %AZURE_DEVOPS_ORG%
-echo %AZURE_DEVOPS_PAT%
-
-# Mac/Linux:
-echo $AZURE_DEVOPS_ORG
-echo $AZURE_DEVOPS_PAT
-```
-
-## 💬 What you can ask Cursor to do
-
-**Work Items:**
-- "Show my active bugs"
-- "Create a task called 'Fix homepage' in project MyApp"
-- "Update work item 12345 to Done"
-- "Add comment 'Fixed' to work item 12345"
-
-**Code & PRs:**
-- "Create a pull request from feature/login to main"
-- "Show pull requests in MyApp"
-- "Search for 'authentication' in code"
-
-**Builds & Tests:**
-- "Run build definition 123"
-- "Show test results for latest build"
-- "Create test plan for Sprint 5"
-
-**And 30+ more commands!**
-
-## 🔒 Is it safe?
-
-Yes! 
-- Runs only on YOUR computer
-- Your token stays on YOUR computer
-- No cloud servers involved
-- Can only do what YOU already have permission to do in Azure DevOps
-- Can't delete anything you don't have admin rights for
-- Open source so you can check the code
-
-## 📝 License
-
-MIT - Do whatever you want with it!
-
-## 🔄 Updating the MCP Server (After Changes)
-
-If you make changes to the MCP server (such as adding new tools, features, or bug fixes), you need to:
-
-1. **Rebuild the project:**
-   ```
-   npm run build
-   ```
-   or
-   ```
-   npx tsc
-   ```
-2. **Restart the MCP server in Cursor:**
-   - Go to **File → Preferences → Cursor Settings → Tools & Integration**.
-   - Find your MCP server (e.g., `azure-devops`).
-   - **Disable** the server (toggle off or remove it).
-   - **Re-enable** the server (toggle on or add it back).
-
-This ensures Cursor loads the latest version of your MCP server and all new features are available.
+1. Open a new chat in Cursor (Ctrl+L)
+2. Type: "List my Azure DevOps projects"
+3. You should see your projects!
 
 ---
 
-**Not working?** Open an issue and I'll help: https://github.com/EreAlexandru/ADOMCPLocalServer/issues 
+## 🆘 Troubleshooting
+
+### 🔍 Quick Diagnostic (Windows)
+Double-click `check-env.bat` to automatically check your setup!
+
+### ❌ Common Issues
+
+**"No green dot / Not connected"**
+1. Did you restart Cursor after adding the server?
+2. Is your path correct in settings? (forward slashes!)
+3. Did you run `npm run build`?
+4. Is the .env file in the ROOT folder?
+
+**"Authentication failed"**
+1. Check your .env file location (must be in root folder!)
+2. Is your organization name spelled correctly?
+3. Did you copy the ENTIRE token?
+4. Has your token expired?
+
+**"Can't find .env file"**
+- The .env file should be in the ROOT folder:
+  ```
+  ADOMCPLocalServer/.env ← HERE!
+  NOT in:
+  - ADOMCPLocalServer/src/.env ❌
+  - ADOMCPLocalServer/dist/.env ❌
+  ```
+
+**To verify your .env location:**
+1. In Cursor terminal, type: `dir .env` (Windows) or `ls -la .env` (Mac/Linux)
+2. You should see the file listed
+
+### 🧪 Test Your Connection
+Run this in the Cursor terminal:
+```bash
+node test-connection.js
+```
+
+This will show:
+- ✅ If your credentials work
+- 📁 What projects you have access to
+- ❌ Any connection errors
+
+---
+
+## 💬 What You Can Ask
+
+Just type naturally in Cursor's chat:
+
+**Daily Tasks:**
+- "Show my active work items"
+- "What did I work on yesterday?"
+- "Create a bug for the login issue"
+
+**Code Reviews:**
+- "Show PRs waiting for my review"
+- "Create a PR from feature/login to main"
+- "What PRs are older than 3 days?"
+
+**Builds & Releases:**
+- "Run the CI build"
+- "Show failed builds from today"
+- "Deploy release to staging"
+
+**Sprint Management:**
+- "Show sprint 23 progress"
+- "What items are blocked?"
+- "Calculate team velocity"
+
+---
+
+## 🎪 Advanced: Guided Workflows
+
+Ask for help with complex tasks:
+- "Help me prepare for standup"
+- "Guide me through sprint planning"
+- "Show sprint retrospective data"
+- "Analyze build health"
+
+The AI will guide you step-by-step!
+
+---
+
+## 🔒 Security
+
+- ✅ Runs 100% locally on YOUR computer
+- ✅ Your token never leaves your machine
+- ✅ Can only do what YOU have permission for
+- ✅ Open source - check the code yourself!
+
+---
+
+## 📝 For Developers
+
+**Made changes?** Rebuild with:
+```bash
+npm run build
+```
+
+Then restart the server in Cursor settings (disable/enable).
+
+---
+
+## 🐛 Still Having Issues?
+
+1. Make sure you're using **Cursor IDE** (not VS Code)
+2. Check the .env file is in the **root folder**
+3. Use **forward slashes** in the path
+4. **Restart Cursor** after any changes
+
+**Need help?** Open an issue: https://github.com/EreAlexandru/ADOMCPLocalServer/issues
+
+---
+
+**License:** MIT - Use it however you want! 🎉 

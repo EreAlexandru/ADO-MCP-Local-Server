@@ -1,34 +1,44 @@
 {
   "name": "azure-devops-mcp-cursor",
   "version": "4.0.0",
-  "description": "Modular Azure DevOps MCP Server for Cursor IDE - 41 tools with clean architecture",
+  "description": "Modular Azure DevOps MCP Server for Cursor IDE - 60+ tools with clean architecture (PAT auth, no CLI required)",
   "main": "dist/index.js",
   "type": "module",
+  "bin": {
+    "mcp-server-azuredevops": "dist/index.js"
+  },
   "scripts": {
+    "prebuild": "node -p \"'export const packageVersion = ' + JSON.stringify(require('./package.json').version) + ';\\r'\" > src/version.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
     "watch": "tsc --watch",
     "clean": "rimraf dist",
-    "test": "echo \"No tests yet\""
+    "test": "echo \"No tests yet\"",
+    "inspect": "npx @modelcontextprotocol/inspector node dist/index.js"
   },
   "keywords": [
     "mcp",
     "azure-devops",
     "cursor",
-    "server"
+    "server",
+    "pat-auth",
+    "no-cli"
   ],
   "author": "Alexandru Eremia",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@modelcontextprotocol/sdk": "1.13.2",
     "axios": "^1.7.2",
     "dotenv": "^16.4.5",
-    "zod": "^3.23.8"
+    "zod": "^3.25.63",
+    "zod-to-json-schema": "^3.24.5"
   },
   "devDependencies": {
-    "@types/node": "^20.14.2",
+    "@modelcontextprotocol/inspector": "^0.14.0",
+    "@types/node": "^22",
     "tsx": "^4.15.4",
-    "typescript": "^5.4.5"
+    "typescript": "^5.8.3",
+    "rimraf": "^6.0.1"
   }
 }
