@@ -7,38 +7,46 @@ This project provides a Model Context Protocol (MCP) server for Azure DevOps int
 
 The server includes pre-configured prompts for common workflows:
 
-### 1. Daily Standup (`daily_standup`)
-- **Purpose**: Prepare for your daily standup meeting
-- **Required**: Project name
-- **What it does**: Shows your active work items, recent updates, current tasks, and blockers
+### 🏃‍♂️ Development & Team Management
+1. **Daily Standup** (`daily_standup`) - Prepare for your daily standup meeting
+2. **Sprint Planning** (`sprint_planning`) - Help with sprint planning activities
+3. **Code Review** (`code_review`) - Find pull requests that need your review
+4. **My Work** (`my_work`) - Get all your active work items
+5. **Release Status** (`release_status`) - Check release pipeline status
+6. **Bug Triage** (`bug_triage`) - Review and triage bugs
+7. **Sprint Retrospective** (`sprint_retrospective`) - Gather data for sprint retrospective
+8. **Build Health** (`build_health`) - Check build pipeline health and recent failures
+9. **Work Item Dependencies** (`work_item_dependencies`) - Analyze work item dependencies and blockers
+10. **Team Velocity** (`team_velocity`) - Calculate team velocity and capacity
 
-### 2. Sprint Planning (`sprint_planning`)
-- **Purpose**: Help with sprint planning activities
-- **Required**: Project name, Iteration path
-- **What it does**: Lists sprint items, unassigned work, priorities, and at-risk items
+### 🧪 QA Manual Testing
+11. **Test Execution Status** (`test_execution_status`) - Check test execution status and progress
+12. **Failed Tests Analysis** (`failed_tests_analysis`) - Analyze failed tests and common failure patterns
+13. **Test Coverage Report** (`test_coverage_report`) - Generate test coverage and execution report
+14. **Bug Quality Metrics** (`bug_quality_metrics`) - Analyze bug quality metrics and trends
+15. **Regression Test Plan** (`regression_test_plan`) - Create regression test plan for release
+16. **Test Environment Status** (`test_environment_status`) - Check test environment availability and health
 
-### 3. Code Review (`code_review`)
-- **Purpose**: Find pull requests that need your review
-- **Required**: Project name
-- **What it does**: Shows active PRs, aging PRs, and those with unresolved comments
+### 🤖 QA Automation Testing
+17. **Automation Test Results** (`automation_test_results`) - Analyze automated test results and trends
+18. **Flaky Tests Detection** (`flaky_tests_detection`) - Identify flaky/unstable automated tests
+19. **Automation Coverage Gap** (`automation_coverage_gap`) - Find manual tests that need automation
+20. **Performance Test Analysis** (`performance_test_analysis`) - Analyze performance test results and trends
+21. **Test Maintenance Report** (`test_maintenance_report`) - Generate test maintenance and health report
 
-### 4. My Work (`my_work`)
-- **Purpose**: Get all your active work items
-- **Required**: Project name
-- **What it does**: Lists your assigned items grouped by state with recent updates
-
-### 5. Release Status (`release_status`)
-- **Purpose**: Check release pipeline status
-- **Required**: Project name
-- **What it does**: Shows recent releases, their status, and deployment information
+### 🚀 Cross-Functional QA
+22. **Release Readiness Check** (`release_readiness_check`) - Complete release readiness assessment
+23. **Defect Leakage Analysis** (`defect_leakage_analysis`) - Analyze defects found in production vs testing phases
+24. **Test Data Management** (`test_data_management`) - Review test data setup and requirements
 
 ### Using Prompts in Cursor
 Simply ask naturally:
-- "Help me prepare for standup in project Contoso"
-- "Show my work items"
-- "What PRs need review?"
+- **For Developers:** "Help me prepare for standup in project Contoso"
+- **For QA Manual:** "Show test execution status for our current sprint"
+- **For QA Automation:** "Find flaky tests in our automation suite"
+- **For Release Management:** "Check if we're ready for release"
 
-The AI will automatically use the appropriate prompt template.
+The AI will automatically use the appropriate prompt template and guide you through the process.
 
 ## Available Tools
 

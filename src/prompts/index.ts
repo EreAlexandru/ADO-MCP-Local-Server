@@ -151,6 +151,233 @@ export const PROMPT_TEMPLATES = {
         required: false
       }
     ]
+  },
+  // QA MANUAL TESTING PROMPTS
+  test_execution_status: {
+    name: "test_execution_status",
+    description: "QA: Check test execution status and progress",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "testPlanId",
+        description: "Test plan ID (optional - will show all if not provided)",
+        required: false
+      }
+    ]
+  },
+  failed_tests_analysis: {
+    name: "failed_tests_analysis",
+    description: "QA: Analyze failed tests and common failure patterns",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "buildId",
+        description: "Specific build ID to analyze (optional)",
+        required: false
+      }
+    ]
+  },
+  test_coverage_report: {
+    name: "test_coverage_report",
+    description: "QA: Generate test coverage and execution report",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "iterationPath",
+        description: "Sprint/iteration to analyze",
+        required: true
+      }
+    ]
+  },
+  bug_quality_metrics: {
+    name: "bug_quality_metrics",
+    description: "QA: Analyze bug quality metrics and trends",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "areaPath",
+        description: "Area path to filter (optional)",
+        required: false
+      },
+      {
+        name: "days",
+        description: "Number of days to analyze (default: 30)",
+        required: false
+      }
+    ]
+  },
+  regression_test_plan: {
+    name: "regression_test_plan",
+    description: "QA: Create regression test plan for release",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "releaseVersion",
+        description: "Release version or tag",
+        required: true
+      }
+    ]
+  },
+  test_environment_status: {
+    name: "test_environment_status",
+    description: "QA: Check test environment availability and health",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      }
+    ]
+  },
+  // QA AUTOMATION PROMPTS
+  automation_test_results: {
+    name: "automation_test_results",
+    description: "QA Automation: Analyze automated test results and trends",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "buildDefinitionId",
+        description: "Build definition ID for automation tests",
+        required: false
+      },
+      {
+        name: "days",
+        description: "Number of days to analyze (default: 7)",
+        required: false
+      }
+    ]
+  },
+  flaky_tests_detection: {
+    name: "flaky_tests_detection",
+    description: "QA Automation: Identify flaky/unstable automated tests",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "buildDefinitionId",
+        description: "Build definition ID to analyze",
+        required: false
+      }
+    ]
+  },
+  automation_coverage_gap: {
+    name: "automation_coverage_gap",
+    description: "QA Automation: Find manual tests that need automation",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "testSuiteId",
+        description: "Test suite ID to analyze",
+        required: false
+      }
+    ]
+  },
+  performance_test_analysis: {
+    name: "performance_test_analysis",
+    description: "QA Automation: Analyze performance test results and trends",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "buildId",
+        description: "Specific build with performance tests",
+        required: false
+      }
+    ]
+  },
+  test_maintenance_report: {
+    name: "test_maintenance_report",
+    description: "QA Automation: Generate test maintenance and health report",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      }
+    ]
+  },
+  // CROSS-FUNCTIONAL QA PROMPTS
+  release_readiness_check: {
+    name: "release_readiness_check",
+    description: "QA: Complete release readiness assessment",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "releaseId",
+        description: "Release ID to check",
+        required: true
+      }
+    ]
+  },
+  defect_leakage_analysis: {
+    name: "defect_leakage_analysis",
+    description: "QA: Analyze defects found in production vs testing phases",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "iterationPath",
+        description: "Sprint/iteration to analyze",
+        required: true
+      }
+    ]
+  },
+  test_data_management: {
+    name: "test_data_management",
+    description: "QA: Review test data setup and requirements",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "testPlanId",
+        description: "Test plan ID",
+        required: true
+      }
+    ]
   }
 };
 
@@ -242,6 +469,214 @@ function generatePromptContent(promptName: string, args: Record<string, any>): s
 4. Calculate average velocity across sprints
 5. Show velocity trend (increasing/decreasing/stable)
 6. Compare planned vs actual capacity for each sprint`;
+
+    case 'test_execution_status':
+      const testPlanFilter = args.testPlanId ? ` for test plan ${args.testPlanId}` : '';
+      return `Check test execution status and progress in project "${args.project}"${testPlanFilter}.
+1. Use list_test_plans to get all test plans${args.testPlanId ? ` or get specific plan ${args.testPlanId}` : ''}
+2. For each test plan, use list_test_cases to get test cases
+3. Use get_test_results to check execution status
+4. Group results by: Passed, Failed, Blocked, Not Run
+5. Calculate completion percentage and identify bottlenecks
+6. Show test execution trends over the last 7 days`;
+
+    case 'failed_tests_analysis':
+      const buildFilter = args.buildId ? ` for build ${args.buildId}` : ' for recent builds';
+      return `Analyze failed tests and identify patterns in project "${args.project}"${buildFilter}.
+1. Use get_test_results_by_build${args.buildId ? ` with buildId ${args.buildId}` : ' for latest builds'}
+2. Filter for failed test results only
+3. Group failures by:
+   - Test suite/area
+   - Failure reason/error message
+   - Frequency of failure
+4. Use list_builds to correlate with build changes
+5. Identify the top 5 most frequent failure patterns
+6. Suggest potential root causes and remediation steps`;
+
+    case 'test_coverage_report':
+      return `Generate comprehensive test coverage report for "${args.iterationPath}" in project "${args.project}".
+1. Use wit_get_work_items_for_iteration to get all user stories/features
+2. Use list_test_plans to get test plans for this iteration
+3. For each test plan, use list_test_cases to get test coverage
+4. Map test cases to user stories/requirements
+5. Calculate coverage metrics:
+   - Requirements coverage %
+   - Test execution rate
+   - Pass/fail ratios
+6. Identify uncovered or under-tested areas
+7. Show test execution velocity and trends`;
+
+         case 'bug_quality_metrics':
+       const days = args.days || 30;
+       const bugAreaFilter = args.areaPath ? ` in area "${args.areaPath}"` : '';
+       return `Analyze bug quality metrics for the last ${days} days in project "${args.project}"${bugAreaFilter}.
+1. Use wit_run_query to get bugs created in the last ${days} days:
+   SELECT [System.Id], [System.Title], [System.Priority], [System.Severity], [System.State], [System.CreatedDate], [System.ResolvedDate] 
+   FROM WorkItems WHERE [System.WorkItemType] = 'Bug' AND [System.CreatedDate] >= @Today-${days}${args.areaPath ? ` AND [System.AreaPath] UNDER '${args.areaPath}'` : ''}
+2. Calculate key metrics:
+   - Bug discovery rate (bugs/day)
+   - Bug resolution time (average)
+   - Bug severity distribution
+   - Bug escape rate (production bugs)
+3. Show trends and compare with previous periods
+4. Identify areas with highest bug density`;
+
+    case 'regression_test_plan':
+      return `Create regression test plan for release "${args.releaseVersion}" in project "${args.project}".
+1. Use repo_list_pull_requests_by_project to get PRs included in release
+2. For each PR, analyze changed files and components
+3. Use search_code to find related test cases
+4. Use list_test_plans to identify existing regression suites
+5. Create test execution plan covering:
+   - Core functionality tests
+   - Integration tests for changed components
+   - Performance regression tests
+   - Security and compliance tests
+6. Estimate test execution time and resource requirements
+7. Prioritize tests based on risk and impact`;
+
+    case 'test_environment_status':
+      return `Check test environment status and health in project "${args.project}".
+1. Use list_releases to get recent deployments to test environments
+2. Use list_builds to check latest deployment status
+3. For each environment, verify:
+   - Deployment status and version
+   - Service health and availability
+   - Database connectivity and data integrity
+   - External dependencies status
+4. Use get_test_results to check recent test execution success
+5. Identify any environment issues or outages
+6. Show environment utilization and capacity`;
+
+    case 'automation_test_results':
+      const analysisDays = args.days || 7;
+      const buildDefFilter = args.buildDefinitionId ? ` for build definition ${args.buildDefinitionId}` : '';
+      return `Analyze automated test results and trends for the last ${analysisDays} days in project "${args.project}"${buildDefFilter}.
+1. Use list_builds${args.buildDefinitionId ? ` with definitionId ${args.buildDefinitionId}` : ''} for the last ${analysisDays} days
+2. For each build, use get_test_results_by_build to get automation results
+3. Calculate automation metrics:
+   - Test pass rate trend
+   - Test execution time trends
+   - Test stability (consistent results)
+   - Coverage of automated vs manual tests
+4. Identify top failing tests and failure reasons
+5. Show automation ROI metrics (time saved, bugs caught)
+6. Recommend improvements for test automation strategy`;
+
+    case 'flaky_tests_detection':
+      return `Identify flaky and unstable automated tests in project "${args.project}".
+1. Use list_builds${args.buildDefinitionId ? ` with definitionId ${args.buildDefinitionId}` : ''} for the last 30 builds
+2. For each build, use get_test_results_by_build to get test results
+3. Analyze test stability by calculating:
+   - Pass rate for each test (should be >95% or <5% to be stable)
+   - Tests that pass/fail inconsistently on same code
+   - Tests with intermittent timeouts or errors
+4. Rank tests by flakiness score (inconsistency frequency)
+5. Identify common patterns in flaky tests:
+   - Environment dependencies
+   - Timing issues
+   - Data dependencies
+6. Recommend fixes for top 10 flaky tests`;
+
+         case 'automation_coverage_gap':
+       return `Find manual tests that need automation in project "${args.project}".
+1. Use list_test_plans to get all test plans
+2. Use list_test_cases${args.testSuiteId ? ` for suite ${args.testSuiteId}` : ''} to get manual test cases
+3. Use list_builds and get_test_results_by_build to get automated test coverage
+4. Compare manual test cases with automated test coverage:
+   - Identify manual tests without automation
+   - Find repetitive manual tests (good automation candidates)
+   - Locate high-value/high-risk manual tests
+5. Prioritize automation candidates by:
+   - Execution frequency
+   - Business criticality
+   - Regression risk
+6. Estimate automation effort and ROI for top candidates`;
+
+     case 'performance_test_analysis':
+       return `Analyze performance test results and trends in project "${args.project}".
+1. Use list_builds to get builds with performance tests
+2. Use get_test_results${args.buildId ? ` for build ${args.buildId}` : ' for recent builds'} to get performance results
+3. Analyze performance metrics:
+   - Response time trends
+   - Throughput and load capacity
+   - Resource utilization (CPU, memory)
+   - Error rates under load
+4. Compare against performance baselines and SLAs
+5. Identify performance regressions or improvements
+6. Show performance test coverage across different scenarios
+7. Recommend performance optimization opportunities`;
+
+     case 'test_maintenance_report':
+       return `Generate test maintenance and health report for project "${args.project}".
+1. Use list_test_plans to get all test plans and suites
+2. Use list_test_cases to analyze test case health:
+   - Last execution date
+   - Pass/fail history
+   - Test case complexity and maintainability
+3. Use get_test_results to identify:
+   - Outdated or obsolete tests
+   - Tests requiring frequent updates
+   - Tests with poor documentation
+4. Calculate test maintenance metrics:
+   - Test execution coverage
+   - Test update frequency
+   - Test failure investigation time
+5. Identify test debt and cleanup opportunities
+6. Recommend test optimization and consolidation`;
+
+     case 'release_readiness_check':
+       return `Complete release readiness assessment for release ${args.releaseId} in project "${args.project}".
+1. Use list_releases and get release details for release ${args.releaseId}
+2. Check test execution completeness:
+   - All planned test cases executed
+   - Critical/high priority tests passed
+   - No blocking defects remain open
+3. Verify deployment readiness:
+   - All environments tested successfully
+   - Database migration scripts validated
+   - Rollback procedures verified
+4. Use wit_run_query to check for open issues:
+   SELECT * FROM WorkItems WHERE [System.State] NOT IN ('Closed', 'Done') AND [System.Tags] CONTAINS 'Release-${args.releaseId}'
+5. Generate go/no-go recommendation with risk assessment`;
+
+     case 'defect_leakage_analysis':
+       return `Analyze defect leakage between testing phases and production in project "${args.project}" for "${args.iterationPath}".
+1. Use wit_get_work_items_for_iteration to get all work items from the iteration
+2. Use wit_run_query to get defects by discovery phase:
+   - Unit testing phase bugs
+   - Integration testing phase bugs
+   - System testing phase bugs
+   - UAT phase bugs
+   - Production bugs (found after release)
+3. Calculate defect leakage metrics:
+   - % of defects found in each phase
+   - Defect detection efficiency
+   - Cost of defect by discovery phase
+4. Analyze root causes of production defects
+5. Recommend process improvements to reduce leakage
+6. Show trends compared to previous iterations`;
+
+     case 'test_data_management':
+       return `Review test data setup and requirements for test plan ${args.testPlanId} in project "${args.project}".
+1. Use list_test_cases for test plan ${args.testPlanId} to identify data requirements
+2. Analyze test data needs:
+   - Data volume and variety requirements
+   - Data refresh and cleanup procedures
+   - Data privacy and security compliance
+   - Environment-specific data requirements
+3. Check test data health:
+   - Data freshness and accuracy
+   - Data consistency across environments
+   - Data availability and access
+4. Identify test data challenges:
+   - Data setup complexity
+   - Data dependencies between tests
+   - Data maintenance overhead
+5. Recommend test data strategy improvements
+6. Suggest data virtualization or synthetic data opportunities`;
+
+    
 
     default:
       return `Unknown prompt template: ${promptName}`;

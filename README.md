@@ -244,12 +244,33 @@ Just type naturally in Cursor's chat:
 ## 🎪 Advanced: Guided Workflows
 
 Ask for help with complex tasks:
+
+### 👥 **For Development Teams:**
 - "Help me prepare for standup"
 - "Guide me through sprint planning"
 - "Show sprint retrospective data"
 - "Analyze build health"
 
-The AI will guide you step-by-step!
+### 🧪 **For QA Manual Testers:**
+- "Show test execution status"
+- "Analyze failed tests patterns"
+- "Generate test coverage report"
+- "Check test environment health"
+
+### 🤖 **For QA Automation Engineers:**
+- "Find flaky tests in automation"
+- "Analyze automation test results"
+- "Identify tests needing automation"
+- "Show performance test trends"
+
+### 🚀 **For Release Management:**
+- "Check release readiness"
+- "Analyze defect leakage"
+- "Review test data requirements"
+
+**Total: 24 guided workflows** covering development, manual testing, automation, and release management!
+
+The AI will guide you step-by-step through each process!
 
 ---
 
