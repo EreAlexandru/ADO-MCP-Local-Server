@@ -37,4 +37,7 @@ coverage/
 
 # Temporary files
 tmp/
-temp/ 
+temp/
+
+# Microsoft's Azure DevOps MCP (we don't need this in our repo)
+microsoft-azure-devops-mcp/ 
