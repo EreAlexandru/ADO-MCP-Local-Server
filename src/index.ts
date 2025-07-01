@@ -56,56 +56,45 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const { project, query } = args as { project: string; query?: string };
         return await handlers.handleListWorkItems(adoClient, project, query);
       }
-
-      case 'create_work_item': {
-        const { project, type, title, description, assignedTo } = args as {
-          project: string;
-          type: string;
-          title: string;
-          description?: string;
-          assignedTo?: string;
-        };
-        return await handlers.handleCreateWorkItem(adoClient, project, type, title, description, assignedTo);
+      case 'wit_my_work_items': {
+        const { project } = args as { project: string };
+        return await handlers.handleWitMyWorkItems(adoClient, project);
       }
-
-      case 'get_work_item': {
+      case 'wit_get_work_item': {
         const { id } = args as { id: number };
-        return await handlers.handleGetWorkItem(adoClient, id);
+        return await handlers.handleWitGetWorkItem(adoClient, id);
       }
-
-      case 'update_work_item': {
-        const { id, title, description, state, assignedTo } = args as {
-          id: number;
-          title?: string;
-          description?: string;
-          state?: string;
-          assignedTo?: string;
-        };
-        return await handlers.handleUpdateWorkItem(adoClient, id, { title, description, state, assignedTo });
+      case 'wit_update_work_item': {
+        const { id, title, description, state, assignedTo } = args as { id: number; title?: string; description?: string; state?: string; assignedTo?: string; };
+        return await handlers.handleWitUpdateWorkItem(adoClient, id, { title, description, state, assignedTo });
       }
-
-      case 'run_query': {
-        const { query } = args as { query: string };
-        return await handlers.handleRunQuery(adoClient, query);
+      case 'wit_create_work_item': {
+        const { project, type, fields } = args as { project: string; type: string; fields: { [key: string]: any; } };
+        return await handlers.handleWitCreateWorkItem(adoClient, project, type, fields);
       }
-
-      case 'search_work_items': {
-        const { searchText, project } = args as { searchText: string; project?: string };
-        return await handlers.handleSearchWorkItems(adoClient, searchText, project);
+      case 'wit_list_work_item_comments': {
+        const { id } = args as { id: number };
+        return await handlers.handleWitListWorkItemComments(adoClient, id);
       }
-
-      case 'add_work_item_comment': {
+      case 'wit_get_work_items_for_iteration': {
+        const { project, iterationPath } = args as { project: string; iterationPath: string; };
+        return await handlers.handleWitGetWorkItemsForIteration(adoClient, project, iterationPath);
+      }
+      case 'wit_add_work_item_comment': {
         const { id, comment } = args as { id: number; comment: string };
-        return await handlers.handleAddWorkItemComment(adoClient, id, comment);
+        return await handlers.handleWitAddWorkItemComment(adoClient, id, comment);
       }
-
-      case 'link_work_items': {
-        const { sourceId, targetId, linkType } = args as {
-          sourceId: number;
-          targetId: number;
-          linkType: string;
-        };
-        return await handlers.handleLinkWorkItems(adoClient, sourceId, targetId, linkType);
+      case 'wit_work_items_link': {
+        const { sourceId, targetId, linkType } = args as { sourceId: number; targetId: number; linkType: string; };
+        return await handlers.handleWitLinkWorkItems(adoClient, sourceId, targetId, linkType);
+      }
+      case 'wit_run_query': {
+        const { query } = args as { query: string };
+        return await handlers.handleWitRunQuery(adoClient, query);
+      }
+      case 'wit_search_work_items': {
+        const { searchText, project } = args as { searchText: string; project?: string };
+        return await handlers.handleWitSearchWorkItems(adoClient, searchText, project);
       }
 
       // Repository tools

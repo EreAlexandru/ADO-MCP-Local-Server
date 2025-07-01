@@ -21,20 +21,16 @@ export async function handleListWorkItems(adoClient: AzureDevOpsClient, project:
  * @param adoClient - The Azure DevOps client instance
  * @param project - Project name
  * @param type - Work item type (e.g., Task, Bug, User Story)
- * @param title - Work item title
- * @param description - Optional description
- * @param assignedTo - Optional assignee
+ * @param fields - Object containing work item fields
  * @returns MCP-formatted response with created work item details
  */
-export async function handleCreateWorkItem(
+export async function handleWitCreateWorkItem(
   adoClient: AzureDevOpsClient,
   project: string,
   type: string,
-  title: string,
-  description?: string,
-  assignedTo?: string
+  fields: { [key: string]: any }
 ) {
-  return await adoClient.createWorkItem(project, type, title, description, assignedTo);
+  return await adoClient.createWorkItem(project, type, fields);
 }
 
 /**
@@ -43,7 +39,7 @@ export async function handleCreateWorkItem(
  * @param id - Work item ID
  * @returns MCP-formatted response with work item details
  */
-export async function handleGetWorkItem(adoClient: AzureDevOpsClient, id: number) {
+export async function handleWitGetWorkItem(adoClient: AzureDevOpsClient, id: number) {
   return await adoClient.getWorkItem(id);
 }
 
@@ -54,7 +50,7 @@ export async function handleGetWorkItem(adoClient: AzureDevOpsClient, id: number
  * @param updates - Object containing fields to update
  * @returns MCP-formatted response with update confirmation
  */
-export async function handleUpdateWorkItem(
+export async function handleWitUpdateWorkItem(
   adoClient: AzureDevOpsClient,
   id: number,
   updates: {
@@ -73,7 +69,7 @@ export async function handleUpdateWorkItem(
  * @param query - WIQL query string
  * @returns MCP-formatted response with query results
  */
-export async function handleRunQuery(adoClient: AzureDevOpsClient, query: string) {
+export async function handleWitRunQuery(adoClient: AzureDevOpsClient, query: string) {
   return await adoClient.runQuery(query);
 }
 
@@ -84,7 +80,7 @@ export async function handleRunQuery(adoClient: AzureDevOpsClient, query: string
  * @param project - Optional project name to scope the search
  * @returns MCP-formatted response with search results
  */
-export async function handleSearchWorkItems(adoClient: AzureDevOpsClient, searchText: string, project?: string) {
+export async function handleWitSearchWorkItems(adoClient: AzureDevOpsClient, searchText: string, project?: string) {
   return await adoClient.searchWorkItems(searchText, project);
 }
 
@@ -95,7 +91,7 @@ export async function handleSearchWorkItems(adoClient: AzureDevOpsClient, search
  * @param comment - Comment text
  * @returns MCP-formatted response with confirmation
  */
-export async function handleAddWorkItemComment(adoClient: AzureDevOpsClient, id: number, comment: string) {
+export async function handleWitAddWorkItemComment(adoClient: AzureDevOpsClient, id: number, comment: string) {
   return await adoClient.addWorkItemComment(id, comment);
 }
 
@@ -107,11 +103,23 @@ export async function handleAddWorkItemComment(adoClient: AzureDevOpsClient, id:
  * @param linkType - Link type (Related, Parent, Child, etc.)
  * @returns MCP-formatted response with confirmation
  */
-export async function handleLinkWorkItems(
+export async function handleWitLinkWorkItems(
   adoClient: AzureDevOpsClient,
   sourceId: number,
   targetId: number,
   linkType: string
 ) {
   return await adoClient.linkWorkItems(sourceId, targetId, linkType);
+}
+
+export async function handleWitMyWorkItems(adoClient: AzureDevOpsClient, project: string) {
+  return await adoClient.getMyWorkItems(project);
+}
+
+export async function handleWitListWorkItemComments(adoClient: AzureDevOpsClient, id: number) {
+  return await adoClient.listWorkItemComments(id);
+}
+
+export async function handleWitGetWorkItemsForIteration(adoClient: AzureDevOpsClient, project: string, iterationPath: string) {
+  return await adoClient.getWorkItemsForIteration(project, iterationPath);
 } 

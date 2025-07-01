@@ -149,45 +149,27 @@ export class AzureDevOpsClient {
   async createWorkItem(
     project: string,
     type: string,
-    title: string,
-    description?: string,
-    assignedTo?: string
+    fields: { [key: string]: any }
   ) {
     try {
       // Security: Validate all inputs
       this.validateProjectName(project);
       this.validateStringInput(type, 'Work item type', 255);
-      this.validateStringInput(title, 'Title', 255);
-      if (description) {
-        this.validateStringInput(description, 'Description', 32000);
-      }
-      if (assignedTo) {
-        this.validateStringInput(assignedTo, 'Assigned to', 255);
-      }
-      
-      const operations = [
-        {
-          op: 'add',
-          path: '/fields/System.Title',
-          value: title,
-        },
-      ];
-
-      if (description) {
-        operations.push({
-          op: 'add',
-          path: '/fields/System.Description',
-          value: description,
-        });
+      if (!fields || !fields['System.Title']) {
+        throw new Error('Title (System.Title) is a required field.');
       }
 
-      if (assignedTo) {
-        operations.push({
+      const operations = Object.entries(fields).map(([key, value]) => {
+        // Basic validation for field names
+        if (!/^[a-zA-Z0-9.]+$/.test(key)) {
+          throw new Error(`Invalid field reference name: ${key}`);
+        }
+        return {
           op: 'add',
-          path: '/fields/System.AssignedTo',
-          value: assignedTo,
-        });
-      }
+          path: `/fields/${key}`,
+          value: value,
+        };
+      });
 
       const response = await this.api.post(
         `/${project}/_apis/wit/workitems/$${type}?api-version=7.0`,
@@ -199,12 +181,12 @@ export class AzureDevOpsClient {
         }
       );
 
-      const workItem = response.data;
+      const createdItem = response.data;
       return {
         content: [
           {
             type: 'text',
-            text: `Created work item #${workItem.id}: ${workItem.fields['System.Title']}`,
+            text: `Successfully created work item #${createdItem.id}: ${createdItem.fields['System.Title']}`,
           },
         ],
       };
@@ -1807,5 +1789,49 @@ ${page.content}`,
     } catch (error) {
       throw new Error(`Failed to resolve comment thread: ${this.getErrorMessage(error)}`);
     }
+  }
+
+  /**
+   * Get work items assigned to the current user
+   * @param project - Project name
+   * @returns MCP-formatted response with a list of work items
+   */
+  async getMyWorkItems(project: string) {
+    const query = `SELECT [System.Id], [System.Title], [System.State], [System.WorkItemType] FROM WorkItems WHERE [System.TeamProject] = @project AND [System.AssignedTo] = @Me ORDER BY [System.ChangedDate] DESC`;
+    return this.runQuery(query);
+  }
+
+  /**
+   * List comments for a work item, ordered by date
+   * @param id - The ID of the work item
+   * @returns MCP-formatted response with a list of comments
+   */
+  async listWorkItemComments(id: number) {
+    try {
+      this.checkRateLimit();
+      this.validateWorkItemId(id);
+      const response = await this.api.get(`/_apis/wit/workItems/${id}/comments?api-version=7.1-preview.3`);
+      const comments = (response.data.comments || []).sort((a: any, b: any) => new Date(a.revisedDate).getTime() - new Date(b.revisedDate).getTime());
+      return {
+        content: [{
+          type: 'text',
+          text: `Found ${comments.length} comments for work item #${id}:\n` +
+            comments.map((c: any) => `- ${c.revisedBy.displayName} (${new Date(c.revisedDate).toLocaleString()}): ${c.text}`).join('\n\n')
+        }]
+      };
+    } catch (error) {
+      throw new Error(`Failed to list comments: ${this.getErrorMessage(error)}`);
+    }
+  }
+
+  /**
+   * Get work items for a specific iteration path
+   * @param project - Project name
+   * @param iterationPath - The full iteration path
+   * @returns MCP-formatted response with a list of work items
+   */
+  async getWorkItemsForIteration(project: string, iterationPath: string) {
+    const query = `SELECT [System.Id], [System.Title], [System.State], [System.WorkItemType] FROM WorkItems WHERE [System.TeamProject] = @project AND [System.IterationPath] = '${this.escapeWiqlString(iterationPath)}'`;
+    return this.runQuery(query);
   }
 } 

@@ -12,13 +12,16 @@ export {
 // Work item handlers
 export {
   handleListWorkItems,
-  handleCreateWorkItem,
-  handleGetWorkItem,
-  handleUpdateWorkItem,
-  handleRunQuery,
-  handleSearchWorkItems,
-  handleAddWorkItemComment,
-  handleLinkWorkItems,
+  handleWitCreateWorkItem,
+  handleWitGetWorkItem,
+  handleWitUpdateWorkItem,
+  handleWitRunQuery,
+  handleWitSearchWorkItems,
+  handleWitAddWorkItemComment,
+  handleWitLinkWorkItems,
+  handleWitMyWorkItems,
+  handleWitListWorkItemComments,
+  handleWitGetWorkItemsForIteration,
 } from './workItemHandlers.js';
 
 // Repository handlers
