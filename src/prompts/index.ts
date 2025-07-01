@@ -378,6 +378,155 @@ export const PROMPT_TEMPLATES = {
         required: true
       }
     ]
+  },
+  // QA AUTOMATION - PR & CI/CD INTEGRATION PROMPTS
+  automation_pr_analysis: {
+    name: "automation_pr_analysis",
+    description: "QA Automation: Analyze PRs impact on test automation",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "repository",
+        description: "Repository name (optional - will check all repos if not provided)",
+        required: false
+      },
+      {
+        name: "days",
+        description: "Number of days to analyze (default: 7)",
+        required: false
+      }
+    ]
+  },
+  test_automation_ci_health: {
+    name: "test_automation_ci_health",
+    description: "QA Automation: Monitor CI/CD pipeline health for automation tests",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "buildDefinitionId",
+        description: "Build definition ID for automation pipeline",
+        required: false
+      }
+    ]
+  },
+  pr_test_impact_analysis: {
+    name: "pr_test_impact_analysis",
+    description: "QA Automation: Analyze which tests should run for specific PRs",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "pullRequestId",
+        description: "Specific PR ID to analyze",
+        required: true
+      },
+      {
+        name: "repository",
+        description: "Repository name",
+        required: true
+      }
+    ]
+  },
+  automation_code_coverage: {
+    name: "automation_code_coverage",
+    description: "QA Automation: Analyze code coverage from automation tests",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "buildId",
+        description: "Specific build ID to analyze coverage",
+        required: false
+      }
+    ]
+  },
+  test_automation_deployment: {
+    name: "test_automation_deployment",
+    description: "QA Automation: Monitor test automation deployment across environments",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "environment",
+        description: "Target environment (dev, staging, prod)",
+        required: false
+      }
+    ]
+  },
+  pr_quality_gate: {
+    name: "pr_quality_gate",
+    description: "QA Automation: Check if PR meets quality gates for merge",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "pullRequestId",
+        description: "PR ID to check",
+        required: true
+      },
+      {
+        name: "repository",
+        description: "Repository name",
+        required: true
+      }
+    ]
+  },
+  automation_test_trends: {
+    name: "automation_test_trends",
+    description: "QA Automation: Analyze automation test trends across branches/PRs",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "branchName",
+        description: "Specific branch to analyze (optional)",
+        required: false
+      },
+      {
+        name: "days",
+        description: "Number of days to analyze (default: 14)",
+        required: false
+      }
+    ]
+  },
+  test_automation_security: {
+    name: "test_automation_security",
+    description: "QA Automation: Security and compliance check for automation tests",
+    arguments: [
+      {
+        name: "project",
+        description: "Project name",
+        required: true
+      },
+      {
+        name: "testSuite",
+        description: "Specific test suite to check (optional)",
+        required: false
+      }
+    ]
   }
 };
 
@@ -676,7 +825,97 @@ function generatePromptContent(promptName: string, args: Record<string, any>): s
 5. Recommend test data strategy improvements
 6. Suggest data virtualization or synthetic data opportunities`;
 
-    
+    case 'automation_pr_analysis':
+      return `Analyze PRs impact on test automation in project "${args.project}".
+1. Use repo_list_pull_requests_by_project to get PRs in the project
+2. For each PR, analyze changes and identify test impact
+3. Use list_test_cases to get test cases affected by PR
+4. Use get_test_results to check test execution status
+5. Calculate test impact metrics:
+   - Test case changes
+   - Test execution time
+   - Test coverage
+6. Identify test gaps and opportunities for automation`;
+
+    case 'test_automation_ci_health':
+      return `Check CI/CD pipeline health for automation tests in project "${args.project}".
+1. Use list_builds to get builds with automation tests
+2. Use get_test_results to check test execution status
+3. Analyze pipeline health:
+   - Build success rate
+   - Test execution time
+   - Resource utilization
+4. Identify bottlenecks and areas for improvement
+5. Show CI/CD integration health metrics`;
+
+    case 'pr_test_impact_analysis':
+      return `Analyze which tests should run for specific PR ${args.pullRequestId} in project "${args.project}" and repository "${args.repository}".
+1. Use repo_list_pull_requests_by_project to get PR details
+2. Use list_test_cases to get test cases affected by PR
+3. Use get_test_results to check test execution status
+4. Calculate test impact metrics:
+   - Test case changes
+   - Test execution time
+   - Test coverage
+5. Identify test gaps and opportunities for automation`;
+
+    case 'automation_code_coverage':
+      return `Analyze code coverage from automation tests in project "${args.project}" for build ${args.buildId}.
+1. Use list_builds to get builds with automation tests
+2. Use get_test_results to get test coverage
+3. Calculate code coverage metrics:
+   - Line coverage
+   - Method coverage
+   - Branch coverage
+4. Compare against baseline coverage
+5. Identify uncovered or under-tested areas
+6. Show code coverage trends`;
+
+    case 'test_automation_deployment':
+      return `Check test automation deployment in project "${args.project}" for target environment "${args.environment}".
+1. Use list_builds to get builds with test automation
+2. Use get_test_results to check test execution status
+3. Analyze deployment health:
+   - Deployment status
+   - Test execution time
+   - Resource utilization
+4. Identify deployment issues or bottlenecks
+5. Show test automation utilization and capacity`;
+
+    case 'pr_quality_gate':
+      return `Check if PR ${args.pullRequestId} in project "${args.project}" and repository "${args.repository}" meets quality gates for merge.
+1. Use repo_list_pull_requests_by_project to get PR details
+2. Use list_test_cases to get test cases covered by PR
+3. Use get_test_results to check test execution status
+4. Analyze quality metrics:
+   - Test coverage
+   - Code quality
+   - Security compliance
+5. Compare against quality gate thresholds
+6. Generate go/no-go recommendation`;
+
+    case 'automation_test_trends':
+      const branchFilter = args.branchName ? ` for branch "${args.branchName}"` : '';
+      return `Analyze automation test trends across branches/PRs in project "${args.project}"${branchFilter}.
+1. Use list_builds to get builds with automation tests
+2. Use get_test_results to get test execution status
+3. Calculate test execution time trends
+4. Analyze test coverage trends
+5. Identify top performing and underperforming branches/PRs
+6. Show test automation ROI metrics`;
+
+    case 'test_automation_security':
+      const suiteFilter = args.testSuite ? ` for suite "${args.testSuite}"` : '';
+      return `Check security and compliance for automation tests in project "${args.project}"${suiteFilter}.
+1. Use list_builds to get builds with automation tests
+2. Use get_test_results to check test execution status
+3. Analyze security metrics:
+   - Code security
+   - Test security
+   - Environment security
+4. Compare against security gate thresholds
+5. Identify security issues or bottlenecks
+6. Show test automation security health metrics`;
 
     default:
       return `Unknown prompt template: ${promptName}`;

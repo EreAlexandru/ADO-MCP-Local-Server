@@ -91,6 +91,64 @@ Just ask in natural language:
 - 🔧 Calculate test debt
 - 🔧 Suggest optimizations
 
+## 🔄 CI/CD & PR Integration Workflows
+
+### 1. PR Impact Analysis
+**Ask:** *"Analyze PRs impact on test automation for project MyApp"*
+- 🔍 Identify test changes in PRs
+- 🔍 Calculate test execution impact
+- 🔍 Show test coverage changes
+- 🔍 Find automation opportunities
+
+### 2. CI/CD Pipeline Health
+**Ask:** *"Check CI/CD pipeline health for automation tests"*
+- 🏗️ Build success rate monitoring
+- 🏗️ Test execution time trends
+- 🏗️ Resource utilization analysis
+- 🏗️ Pipeline bottleneck identification
+
+### 3. PR Quality Gates
+**Ask:** *"Check if PR 123 meets quality gates for merge"*
+- ✅ Test coverage verification
+- ✅ Code quality checks
+- ✅ Security compliance
+- ✅ Go/no-go merge recommendation
+
+### 4. Test Impact for Specific PRs
+**Ask:** *"Analyze which tests should run for PR 456"*
+- 🎯 Smart test selection
+- 🎯 Risk-based test prioritization
+- 🎯 Execution time optimization
+- 🎯 Test coverage validation
+
+### 5. Automation Test Trends
+**Ask:** *"Analyze automation test trends across branches"*
+- 📊 Branch-specific test performance
+- 📊 Cross-branch stability comparison
+- 📊 Feature branch quality metrics
+- 📊 Integration success rates
+
+### 6. Code Coverage Analysis
+**Ask:** *"Analyze code coverage from automation tests"*
+- 📈 Line/branch/method coverage
+- 📈 Coverage trend analysis
+- 📈 Uncovered code identification
+- 📈 Coverage quality assessment
+
+### 7. Test Automation Deployment
+**Ask:** *"Monitor test automation deployment across environments"*
+- 🌐 Multi-environment test status
+- 🌐 Deployment health monitoring
+- 🌐 Environment-specific issues
+- 🌐 Capacity and utilization
+
+### 8. Security & Compliance Testing
+**Ask:** *"Check security and compliance for automation tests"*
+- 🔒 Security gate validation
+- 🔒 Compliance requirement checks
+- 🔒 Vulnerability scanning results
+- 🔒 Security test coverage
+
 ## 🚀 Release & Quality Management
 
 ### 1. Release Readiness Assessment
@@ -163,6 +221,15 @@ Try: *"Show test execution status for project MyApp sprint 23"*
 4. "Analyze automation coverage gaps"
 ```
 
+### Scenario 4: PR & CI/CD Quality Assurance
+```
+1. "Analyze PRs impact on test automation for project MyApp"
+2. "Check CI/CD pipeline health for automation tests"
+3. "Check if PR 123 meets quality gates for merge"
+4. "Analyze which tests should run for PR 456"
+5. "Monitor test automation deployment across environments"
+```
+
 ## 📈 Metrics & KPIs You Can Track
 
 ### Test Execution Metrics
@@ -188,6 +255,15 @@ Try: *"Show test execution status for project MyApp sprint 23"*
 - Defect leakage rate
 - Environment stability
 - Test data quality
+
+### CI/CD & PR Metrics
+- PR quality gate pass rate
+- Test impact per PR
+- Pipeline success rate
+- Code coverage trends
+- Security compliance rate
+- Deployment frequency
+- Mean time to recovery
 
 ---
 
